@@ -1,21 +1,39 @@
-// app/manager/components/TeamPerformance.tsx
 import React from 'react';
 
-const TeamPerformance: React.FC = () => {
-  return (
-    <div
-      style={{
-        flex: 1,
-        padding: '1rem',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        minWidth: '300px',
-      }}
-    >
-      <h2>Team Performance</h2>
-      <p>Coming soon...</p>
-    </div>
-  );
-};
+const team = [
+  {
+    name: 'Jane R.',
+    assigned: 3,
+    avgDays: 2.5,
+    reviews: 12,
+  },
+  {
+    name: 'Mike R.',
+    assigned: 5,
+    avgDays: 3.1,
+    reviews: 8,
+  },
+];
 
-export default TeamPerformance;
+export default function TeamPerformance() {
+  return (
+    <aside className="bg-white shadow rounded p-6 w-72">
+      <h3 className="font-semibold text-lg mb-6">Team Performance</h3>
+
+      {team.map(({ name, assigned, avgDays, reviews }) => (
+        <div
+          key={name}
+          className="mb-6 last:mb-0 text-sm flex flex-col space-y-1"
+        >
+          <div className="font-semibold">{name}</div>
+          <div className="flex justify-between text-gray-600">
+            <span>
+              {assigned} Assigned / Avg. {avgDays} days
+            </span>
+            <span>{reviews} Reviews</span>
+          </div>
+        </div>
+      ))}
+    </aside>
+  );
+}

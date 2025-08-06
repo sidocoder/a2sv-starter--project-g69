@@ -1,85 +1,54 @@
 import React from 'react';
 import Image from 'next/image';
 
-
 export default function Footer() {
   return (
-    <footer
-      style={{
-        backgroundColor: '#222c3b',
-        color: '#ccc',
-        padding: '3rem 2rem',
-        fontFamily: 'Arial, sans-serif',
-        fontSize: '14px',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '1100px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '2rem',
-        }}
-      >
-        <div style={{ flex: '1 1 250px', minWidth: '250px' }}>
-          <Image
-            src="images/a2sv-logo-white.png" 
-            alt="A2SV logo"
-            style={{ width: '120px', marginBottom: '1rem' }}
-          />
-          <p style={{ lineHeight: 1.5, color: '#aaa' }}>
-  {"Preparing Africa's top tech talent for global opportunities."}
-</p>
+    <footer className="bg-gray-800 text-white py-8 w-full">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-wrap justify-between gap-8">
+          {/* Logo and description */}
+          <div className="flex-1 min-w-[250px]">
+            <Image
+              src="/images/white_logo.png"
+              alt="A2SV logo"
+              width={120}
+              height={40}
+              className="mb-4"
+            />
+            <p className="text-sm leading-relaxed">
+              Preparing Africa&apos;s top tech talent for global opportunities.
+            </p>
+          </div>
 
-            
+          {/* Footer Links */}
+          <div className="flex-1 min-w-[150px] space-y-2">
+            <h4 className="font-semibold pb-2 ">Solutions</h4>
+            <p className='pb-2'>Student Training</p>
+            <p>Corporate Partnership</p>
+          </div>
+
+          <div className="flex-1 min-w-[150px] space-y-2">
+            <h4 className="font-semibold pb-2 ">Support</h4>
+            <p className='pb-2'>Contact Us</p>
+            <p>FAQ</p>
+          </div>
+
+          <div className="flex-1 min-w-[150px] space-y-2">
+            <h4 className="font-semibold pb-2">Company</h4>
+            <p className='pb-2'>About</p>
+            <p>Blog</p>
+          </div>
+
+          <div className="flex-1 min-w-[150px] space-y-2">
+            <h4 className="font-semibold pb-2">Legal</h4>
+            <p className='pb-2 '>Privacy</p>
+            <p>Terms</p>
+          </div>
         </div>
 
-        <div style={{ flex: '1 1 150px' }}>
-          <h4 style={{ color: '#fff', marginBottom: '1rem' }}>SOLUTIONS</h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#888' }}>
-            <li>Student Training</li>
-            <li>Corporate Partnership</li>
-          </ul>
-        </div>
+        <hr className="border-gray-700 my-8" />
 
-        <div style={{ flex: '1 1 150px' }}>
-          <h4 style={{ color: '#fff', marginBottom: '1rem' }}>SUPPORT</h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#888' }}>
-            <li>Contact Us</li>
-            <li>FAQ</li>
-          </ul>
-        </div>
-
-        <div style={{ flex: '1 1 150px' }}>
-          <h4 style={{ color: '#fff', marginBottom: '1rem' }}>COMPANY</h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#888' }}>
-            <li>About</li>
-            <li>Blog</li>
-          </ul>
-        </div>
-
-        <div style={{ flex: '1 1 150px' }}>
-          <h4 style={{ color: '#fff', marginBottom: '1rem' }}>LEGAL</h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#888' }}>
-            <li>Privacy</li>
-            <li>Terms</li>
-          </ul>
-        </div>
-      </div>
-
-      <hr style={{ borderColor: '#444', margin: '2rem 0' }} />
-
-      <div
-        style={{
-          textAlign: 'center',
-          color: '#666',
-          fontSize: '13px',
-          userSelect: 'none',
-        }}
-      >
-        © 2023 A2SV. All rights reserved.
+        <p className="text-center text-xs">&copy; 2023 A2SV. All rights reserved.</p>
       </div>
     </footer>
   );

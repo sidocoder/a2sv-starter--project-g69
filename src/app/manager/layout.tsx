@@ -1,10 +1,8 @@
-import NavBar from './components/NavBar';
 
 export default function ManagerLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <NavBar />
-      <main style={{ padding: '2rem' }}>
+      <main style={{ padding: '0' }}>
         {children}
       </main>
     </>

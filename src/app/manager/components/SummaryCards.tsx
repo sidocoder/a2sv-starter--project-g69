@@ -1,50 +1,29 @@
-// app/manager/components/SummaryCards.tsx
-import React from 'react';
+"use client";
 
-const SummaryCards: React.FC = () => {
+import React from "react";
+
+interface SummaryCardProps {
+  title: string;
+  value: number | string;
+  icon?: React.ReactNode;
+  className?: string;
+}
+
+export default function SummaryCard({
+  title,
+  value,
+  icon,
+  className = "",
+}: SummaryCardProps) {
   return (
-    <div style={{ display: 'flex', gap: '1.5rem' }}>
-      <div
-        style={{
-          background: '#3b82f6',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          flex: 1,
-          textAlign: 'center',
-        }}
-      >
-        <h3>Total Applicants</h3>
-        <p style={{ fontSize: '2rem', margin: 0 }}>123</p>
-      </div>
-      <div
-        style={{
-          background: '#22c55e',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          flex: 1,
-          textAlign: 'center',
-        }}
-      >
-        <h3>Accepted</h3>
-        <p style={{ fontSize: '2rem', margin: 0 }}>45</p>
-      </div>
-      <div
-        style={{
-          background: '#f59e0b',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          flex: 1,
-          textAlign: 'center',
-        }}
-      >
-        <h3>Interviews</h3>
-        <p style={{ fontSize: '2rem', margin: 0 }}>10</p>
+    <div
+      className={`bg-white shadow rounded p-6 flex items-center space-x-4 ${className}`}
+    >
+      {icon && <div className="text-3xl text-blue-600">{icon}</div>}
+      <div>
+        <p className="text-gray-500 font-medium">{title}</p>
+        <p className="text-2xl font-bold">{value}</p>
       </div>
     </div>
   );
-};
-
-export default SummaryCards;
+}
