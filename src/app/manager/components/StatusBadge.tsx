@@ -2,16 +2,16 @@
 
 import React from "react";
 
-type StatusType = "Pending" | "Approved" | "Rejected";
+type StatusType = "UnderReview" | "InterviewStage" | "Accepted";
 
 interface StatusBadgeProps {
   status: StatusType;
 }
 
 const statusColors: Record<StatusType, string> = {
-  Pending: "bg-yellow-200 text-yellow-800",
-  Approved: "bg-green-200 text-green-800",
-  Rejected: "bg-red-200 text-red-800",
+ UnderReview: "bg-yellow-200 text-yellow-800",
+InterviewStage: "bg-green-200 text-green-800",
+ Accepted: "bg-red-200 text-red-800",
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {

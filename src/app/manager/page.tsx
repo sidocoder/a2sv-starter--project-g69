@@ -9,14 +9,14 @@ export default function ManagerDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-grow max-w-7xl mx-auto px-8 py-10 mb-50 flex gap-8">
-        <section className="flex-grow flex flex-col">
+      <main className="flex-grow max-w-7xl mx-auto px-8  mb-50 py-10 flex flex-col gap-8">
+        <section className="flex-grow">
           <h1 className="text-xl font-bold mb-1">Manager Dashboard</h1>
           <p className="mb-6 text-gray-600 text-sm">G7 November Intake</p>
 
           <SummaryCards />
 
-          <div className="flex gap-8 mt-8">
+          <div className="flex gap-8 mt-8 flex-wrap">
             <ApplicationsTable />
             <TeamPerformance />
           </div>

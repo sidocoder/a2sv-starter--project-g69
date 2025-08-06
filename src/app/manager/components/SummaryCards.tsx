@@ -1,29 +1,16 @@
 "use client";
 
 import React from "react";
+import SummaryCard from "./SummaryCard";
 
-interface SummaryCardProps {
-  title: string;
-  value: number | string;
-  icon?: React.ReactNode;
-  className?: string;
-}
-
-export default function SummaryCard({
-  title,
-  value,
-  icon,
-  className = "",
-}: SummaryCardProps) {
+export default function SummaryCards() {
   return (
-    <div
-      className={`bg-white shadow rounded p-6 flex items-center space-x-4 ${className}`}
-    >
-      {icon && <div className="text-3xl text-blue-600">{icon}</div>}
-      <div>
-        <p className="text-gray-500 font-medium">{title}</p>
-        <p className="text-2xl font-bold">{value}</p>
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+      <SummaryCard title="Total Applications" value={124} />
+      <SummaryCard title="Under Review" value={98} />
+      <SummaryCard title="Interview Stage" value={26} />
+      <SummaryCard title="Accepted" value={26} />
+
     </div>
   );
 }
