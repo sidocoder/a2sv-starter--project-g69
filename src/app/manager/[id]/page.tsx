@@ -99,8 +99,8 @@ export default function ManagerDetailPage() {
         </div>
 
         {/* Right Column (Manager Actions) */}
-        <div className="w-full lg:w-1/3">
-          <div className="bg-white pt-10 rounded-lg shadow flex flex-col space-y-8">
+        <div className="w-full  lg:w-1/3 pt-14">
+          <div className="bg-white p-7 rounded-lg shadow flex flex-col space-y-8">
             {/* Section 1: Assign Reviewer */}
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Manager Actions</h3>
