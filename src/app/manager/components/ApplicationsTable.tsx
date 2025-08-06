@@ -111,7 +111,7 @@ export default function ApplicationsTable() {
                     </Link>
                     <div className="relative group">
                       <button
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-between items-center"
+                        className="flex w-full text-left px-4 py-2 hover:bg-gray-100 justify-between items-center"
                         onClick={() =>
                           setOpenAssignId(openAssignId === id ? null : id)
                         }

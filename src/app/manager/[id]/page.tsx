@@ -11,7 +11,7 @@ export default function ManagerDetailPage() {
         <div className="text-sm text-gray-700  pr-20 flex items-center">
           <p className="mr-5">Sarah Manager</p>
           <button className="hover:underline">Logout</button>
-        </div>
+        </div>g
       </div>
 
       {/* Main Content */}
