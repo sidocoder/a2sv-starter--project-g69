@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ApplicationsTable = () => {
+function ApplicationsTable() {
   return (
     <div>ApplicationsTable</div>
   )
