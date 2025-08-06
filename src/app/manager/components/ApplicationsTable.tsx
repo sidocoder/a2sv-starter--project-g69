@@ -1,9 +1,12 @@
-"use client";
+'use client';
+
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 type Application = {
   id: number;
   applicant: string;
+  slug: string;
   submitted: string;
   assignedReviewer: string | null;
   status: 'Under Review' | 'New';
@@ -13,6 +16,7 @@ const applications: Application[] = [
   {
     id: 1,
     applicant: 'Abel Tadesse',
+    slug: 'abel-tadesse',
     submitted: 'Oct 26, 2023',
     assignedReviewer: 'Jane R.',
     status: 'Under Review',
@@ -20,6 +24,7 @@ const applications: Application[] = [
   {
     id: 2,
     applicant: 'Bethlehem Tadesse',
+    slug: 'bethlehem-tadesse',
     submitted: 'Oct 25, 2023',
     assignedReviewer: null,
     status: 'New',
@@ -29,7 +34,6 @@ const applications: Application[] = [
 const reviewers = ['Abebe Kebede', 'Alemu Mossia'];
 
 export default function ApplicationsTable() {
-  // For dropdown state management
   const [openActionsId, setOpenActionsId] = useState<number | null>(null);
   const [openAssignId, setOpenAssignId] = useState<number | null>(null);
 
@@ -56,9 +60,13 @@ export default function ApplicationsTable() {
           </tr>
         </thead>
         <tbody>
-          {applications.map(({ id, applicant, submitted, assignedReviewer, status }) => (
+          {applications.map(({ id, applicant, slug, submitted, assignedReviewer, status }) => (
             <tr key={id} className="border-b border-gray-200 hover:bg-gray-50 relative">
-              <td className="p-3">{applicant}</td>
+              <td className="p-3">
+                <Link href={`/manager/${slug}`} className="text-blue-600 hover:underline">
+                  {applicant}
+                </Link>
+              </td>
               <td className="p-3">{submitted}</td>
               <td className="p-3 text-gray-400">
                 {assignedReviewer || (
@@ -86,7 +94,7 @@ export default function ApplicationsTable() {
                   Actions ▼
                 </button>
 
-                {/* Actions dropdown */}
+                {/* Actions Dropdown */}
                 {openActionsId === id && (
                   <div
                     className="absolute top-full right-0 mt-1 w-40 bg-white shadow-md rounded border border-gray-200 z-10"
@@ -95,27 +103,23 @@ export default function ApplicationsTable() {
                       setOpenAssignId(null);
                     }}
                   >
-                    <button
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                      onClick={() => alert(`Review ${applicant}`)}
-                    >
-                      Review
-                    </button>
-                    <button
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                      onClick={() => alert(`View Details ${applicant}`)}
+                    <Link
+                      href={`/manager/${slug}`}
+                      className="block px-4 py-2 hover:bg-gray-100 text-left w-full"
                     >
                       View Details
-                    </button>
+                    </Link>
                     <div className="relative group">
                       <button
                         className="block w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-between items-center"
-                        onClick={() => setOpenAssignId(openAssignId === id ? null : id)}
+                        onClick={() =>
+                          setOpenAssignId(openAssignId === id ? null : id)
+                        }
                       >
                         Assign to Reviewer &raquo;
                       </button>
 
-                      {/* Assign dropdown */}
+                      {/* Assign Dropdown */}
                       {openAssignId === id && (
                         <div
                           className="absolute top-0 left-full mt-0 ml-1 w-48 bg-white shadow-md rounded border border-gray-200 z-20"
@@ -127,7 +131,9 @@ export default function ApplicationsTable() {
                           {reviewers.map((rev) => (
                             <button
                               key={rev}
-                              onClick={() => alert(`Assign ${applicant} to ${rev}`)}
+                              onClick={() =>
+                                alert(`Assign ${applicant} to ${rev}`)
+                              }
                               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left"
                             >
                               <svg
