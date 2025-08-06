@@ -1,21 +1,21 @@
-export default function TeamPerformance() {
-  const reviewers = [
-    { name: 'Jane R.', assigned: 3, avgDays: 2.5, totalReviews: 12 },
-    { name: 'Mike R.', assigned: 5, avgDays: 3.1, totalReviews: 8 },
-  ];
+// app/manager/components/TeamPerformance.tsx
+import React from 'react';
 
+const TeamPerformance: React.FC = () => {
   return (
-    <div className="card" style={{ flex: 1 }}>
-      <h3>Team Performance</h3>
-      <ul style={{ marginTop: '1rem' }}>
-        {reviewers.map((r, i) => (
-          <li key={i} style={{ marginBottom: '1rem' }}>
-            <strong>{r.name}</strong><br />
-            {r.assigned} Assigned / Avg. {r.avgDays} days<br />
-            {r.totalReviews} Reviews
-          </li>
-        ))}
-      </ul>
+    <div
+      style={{
+        flex: 1,
+        padding: '1rem',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        minWidth: '300px',
+      }}
+    >
+      <h2>Team Performance</h2>
+      <p>Coming soon...</p>
     </div>
   );
-}
+};
+
+export default TeamPerformance;
