@@ -32,7 +32,7 @@ export default function Journey() {
       <p className="text-gray-600 mb-10">A proven path from learning to leadership.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-6 max-w-7xl mx-auto">
         {steps.map((step, i) => (
-          <div key={i} className="bg-gray-100 p-6 rounded-lg shadow hover:shadow-md transition">
+          <div key={i} className="p-6 rounded-lg shadow hover:shadow-md transition">
             <div className="mb-4">{step.icon}</div>
             <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
             <p className="text-sm text-gray-600">{step.desc}</p>

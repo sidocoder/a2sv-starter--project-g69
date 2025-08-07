@@ -1,16 +1,15 @@
-import React from 'react'
-import './globals.css'
-import Header from './components/Header'
-import HeroSection from './components/HeroSection'
-import Partners from './components/Partners'
-import Journey from './components/Journey'
-import About from './components/About'
-import Testimonials from './components/Testimonials'
-import Apply from './components/Apply'
+import Header from './components/Header';
+import HeroSection from './components/HeroSection';
+import Partners from './components/Partners';
+import Journey from './components/Journey';
+import About from './components/About';
+import Testimonials from './components/Testimonials';
+import Apply from './components/Apply';
+import Footer from './components/Footer';
 
-const page = () => {
+export default function HomePage() {
   return (
-    <div>
+    <main>
       <Header />
       <HeroSection />
       <Partners />
@@ -18,10 +17,7 @@ const page = () => {
       <About />
       <Testimonials />
       <Apply />
-      
-  
-    </div>
-  )
+      <Footer />
+    </main>
+  );
 }
-
-export default page
