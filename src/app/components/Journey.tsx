@@ -27,7 +27,7 @@ const steps = [
 
 export default function Journey() {
   return (
-    <section className="py-16 bg-white text-center">
+    <section className="py-16  bg-white text-center" id="Journey" >
       <h2 className="text-3xl font-bold mb-2">Your Journey to Silicon Valley</h2>
       <p className="text-gray-600 mb-10">A proven path from learning to leadership.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-6 max-w-7xl mx-auto">

@@ -10,9 +10,9 @@ export default function Header() {
         <Image src="/images/logo.png" alt="A2SV logo" width={120} height={40} />
       </div>
       <nav className="hidden md:flex gap-6 text-gray-700 font-medium">
-        <Link href="#">The Journey</Link>
-        <Link href="#">About</Link>
-        <Link href="#">Testimonials</Link>
+        <Link href="#Journey">The Journey</Link>
+        <Link href="#About">About</Link>
+        <Link href="#Testimonials">Testimonials</Link>
       </nav>
       <Link
         href="#"
