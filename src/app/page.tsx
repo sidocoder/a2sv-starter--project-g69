@@ -1,14 +1,23 @@
-"use client";
+import Header from './components/Header';
+import HeroSection from './components/HeroSection';
+import Partners from './components/Partners';
+import Journey from './components/Journey';
+import About from './components/About';
+import Testimonials from './components/Testimonials';
+import Apply from './components/Apply';
+import Footer from './components/Footer';
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-
-export default function GoToApplicant() {
+export default function HomePage() {
   return (
-    <Link href="/applicant">
-      <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md">
-        Go to Applicant Page
-      </Button>
-    </Link>
+    <main>
+      <Header />
+      <HeroSection />
+      <Partners />
+      <Journey />
+      <About />
+      <Testimonials />
+      <Apply />
+      <Footer />
+    </main>
   );
 }
