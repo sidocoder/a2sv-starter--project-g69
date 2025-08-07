@@ -25,7 +25,7 @@ export default function Header() {
       </nav>
       <div className="flex items-center space-x-4 text-sm">
         <Link
-          href="#"
+          href="/profile"
           className="text-purple-600 hover:text-purple-800 font-medium"
         >
           Your Profile
