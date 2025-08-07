@@ -1,12 +1,14 @@
-import React from 'react'
-import './globals.css'
+"use client";
 
-const page = () => {
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
+export default function GoToApplicant() {
   return (
-    <div>
-      Home page
-    </div>
-  )
+    <Link href="/applicant">
+      <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md">
+        Go to Applicant Page
+      </Button>
+    </Link>
+  );
 }
-
-export default page
