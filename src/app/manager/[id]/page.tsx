@@ -11,7 +11,7 @@ export default function ManagerDetailPage() {
         <div className="text-sm text-gray-700  pr-20 flex items-center">
           <p className="mr-5">Sarah Manager</p>
           <button className="hover:underline">Logout</button>
-        </div>g
+        </div>
       </div>
 
       {/* Main Content */}
@@ -105,11 +105,13 @@ export default function ManagerDetailPage() {
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Manager Actions</h3>
               <label className="text-sm text-gray-600 block mb-1">Assign Reviewer</label>
-              <input
-                type="text"
-                value="Jane R."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+             <input
+  type="text"
+  value="Jane R."
+  readOnly
+  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+/>
+
               <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-sm font-medium">
                 Confirm
               </button>

@@ -4,7 +4,7 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-gray-300 flex items-center px-8 py-4">
       {/* Left side: logo */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 ml-8">
         <img src="/images/logo.png" alt="A2SV" width={100} height={75} className="h-8" />
       </div>
 
