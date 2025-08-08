@@ -1,8 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import Nav from '../../../components/AdminNavbar';
+import Nav from '../../components/AdminNavbar';
 import { useRouter } from 'next/navigation';
-import Button from '../../../components/button/Button';
+import Button from '../../components/button/Button';
 
 const CreateNewUsers = () => {
   const router = useRouter();

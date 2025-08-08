@@ -1,6 +1,6 @@
 import React from 'react'
-import Nav from '../components/AdminNavbar';
-import Footer from '../components/AdminFooter';
+import Nav from './components/AdminNavbar';
+import Footer from './components/AdminFooter';
 import Link from 'next/link';
 import {UserPlus} from 'lucide-react'
 import {Calendar} from 'lucide-react';
@@ -33,7 +33,7 @@ const AdminDashboard = () => {
             <p className="text-sm text-gray-600 mb-4">
                 Create, edit, and manage user accounts and roles.
             </p>
-            <Link href="/admin/admindashboard/adminusers/" className="text-indigo-600 text-sm font-medium hover:underline">
+            <Link href="/admin/adminusers/" className="text-indigo-600 text-sm font-medium hover:underline">
                 Go to Users →
             </Link>
             </div>
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
             <p className="text-sm text-gray-600 mb-4">
                 Create and manage application cycles.
             </p>
-            <Link href="/admin/admindashboard/admincycles" className="text-indigo-600 text-sm font-medium hover:underline">
+            <Link href="/admin/admincycles" className="text-indigo-600 text-sm font-medium hover:underline">
                 Go to Cycles →
             </Link>
             </div>
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
             <p className="text-sm text-gray-600 mb-4">
             Explore application data and platform insights.
             </p>
-            <Link href="/admin/admindashboard/adminanalytics" className="text-indigo-600 text-sm font-medium hover:underline">
+            <Link href="/admin/adminanalytics" className="text-indigo-600 text-sm font-medium hover:underline">
             Go to Analytics →
             </Link>
         </div>
