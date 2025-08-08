@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Nav from '../../../components/AdminNavbar';
-import Footer from '../../../components/AdminFooter';
+import Nav from '../../components/AdminNavbar';
+import Footer from '../../components/AdminFooter';
 
 const CreateCycle = () => {
   const [formData, setFormData] = useState({
@@ -86,7 +86,7 @@ const CreateCycle = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-4">
-                <Link href="/admin/admindashboard/admincycles">
+                <Link href="/admin/admincycles">
                     <button
                       type="button"
                       className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"

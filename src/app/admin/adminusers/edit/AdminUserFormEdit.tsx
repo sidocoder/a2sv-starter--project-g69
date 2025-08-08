@@ -1,8 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Nav from '../../../components/AdminNavbar';
-import Button from '../../../components/button/Button';
+import Nav from '../../components/AdminNavbar';
+import Button from '../../components/button/Button';
 
 const EditUserPage = () => {
   const { id } = useParams(); 

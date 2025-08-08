@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import ApplicationCard from '../../components/ApplicationCard';
+import ApplicationCard from '../components/ApplicationCard';
 import Link from 'next/link';
-import Nav from '../../components/AdminNavbar';
-import Footer from '../../components/AdminFooter';
+import Nav from '../components/AdminNavbar';
+import Footer from '../components/AdminFooter';
 
 interface ApplicationCycle {
   title: string;
@@ -53,7 +53,7 @@ const ApplicationCycles: React.FC = () => {
       <div className="p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Application Cycles</h1>
-          <Link href="/admin/admindashboard/admincycles/create">
+          <Link href="/admin/admincycles/create">
             <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
               Create New Cycle
             </button>

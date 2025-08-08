@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import Nav from '../../components/AdminNavbar';
-import Footer from '../../components/AdminFooter';
+import Nav from '../components/AdminNavbar';
+import Footer from '../components/AdminFooter';
 import Link from 'next/link';
 
 interface User {
@@ -62,7 +62,7 @@ const UserManagement = () => {
             <h1 className="text-2xl font-bold">User Management</h1>
             <p className="text-sm text-gray-500">Administer and manage all users on the platform.</p>
           </div>
-          <Link href= '/admin/admindashboard/adminusers/create'>
+          <Link href= '/admin/adminusers/create'>
             <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Create New User</button>
           </Link>
         </div>
@@ -125,7 +125,7 @@ const UserManagement = () => {
                     )}
                   </td>
                   <td className="p-3 text-right">
-                    <Link href={`/admin/admindashboard/adminusers/edit/${user.id}`}><button className="text-blue-600 hover:underline mr-4">Edit</button></Link>
+                    <Link href={`/admin/adminusers/edit/${user.id}`}><button className="text-blue-600 hover:underline mr-4">Edit</button></Link>
                     <button onClick={() => handleDelete(user.id)} className="text-red-500 hover:underline">Delete</button>
                   </td>
                 </tr>
