@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 const Apply = () => {
   return (
@@ -13,7 +12,7 @@ const Apply = () => {
         href="#"
         className="bg-white text-indigo-700  px-5 py-2 rounded-md font-semibold"
       >
-        Apply Now
+        Apply Now 
       </Link>
        
          
