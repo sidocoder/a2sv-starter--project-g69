@@ -69,6 +69,9 @@ export default function RegisterPage() {
     if (!formData.password.trim()) {
       newErrors.password = "Please enter your password";
       valid = false;
+    }else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+      valid = false;
     }
     if (!formData.confirmPassword.trim()) {
       newErrors.confirmPassword = "Please confirm your password";

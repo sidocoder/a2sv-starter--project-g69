@@ -143,7 +143,7 @@ export default function LoginPage() {
                 <input type="checkbox" className="mr-2" />
                 Remember me
               </label>
-              <a href="#" className="text-sm text-indigo-600 hover:underline">
+              <a href="./forgot_password" className="text-sm text-indigo-600 hover:underline">
                 Forgot your password?
               </a>
             </div>
@@ -172,7 +172,7 @@ export default function LoginPage() {
           <div>
             <div className={styles.footerLogo}>
               <Image
-                src="/images/logo1.png"
+                src="/images/A2SV.png"
                 alt="A2SV Logo"
                 width={0}
                 height={0}
