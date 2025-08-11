@@ -1,12 +1,9 @@
-// src/authSlice.ts
 "use client";
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createAxiosInstance } from "../utils/axiosInstance";
 import { isAxiosError } from "axios";
-import type { AppDispatch, RootState } from "../store";
-
-const API_URL = "/auth";
+import type { AppDispatch, RootState } from ".";
 
 interface AuthState {
   loading: boolean;
@@ -34,7 +31,8 @@ interface LoginResponse {
   message: string;
 }
 
-// Register thunk
+const API_URL = "/auth";
+
 export const registerUser = createAsyncThunk<
   { message: string; token?: string },
   RegisterFormData,
@@ -46,7 +44,7 @@ export const registerUser = createAsyncThunk<
       email: formData.email,
       password: formData.password,
     };
-    const axiosInstance = createAxiosInstance({} as AppDispatch); // dispatch not needed here
+    const axiosInstance = createAxiosInstance({} as AppDispatch);
     const response = await axiosInstance.post(`${API_URL}/register`, payload);
     return response.data;
   } catch (error: unknown) {
@@ -57,7 +55,6 @@ export const registerUser = createAsyncThunk<
   }
 });
 
-// Login thunk (needs dispatch)
 export const loginUser = createAsyncThunk<
   LoginResponse,
   AuthFormData,
@@ -150,7 +147,6 @@ const authSlice = createSlice({
           );
           localStorage.setItem("refreshToken", refreshToken);
         } else {
-          console.warn("No valid tokens in payload");
           state.token = null;
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");

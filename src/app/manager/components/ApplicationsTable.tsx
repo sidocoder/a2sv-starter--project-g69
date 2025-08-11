@@ -1,41 +1,22 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Link from "next/link";
+import type { ApplicationCamelCase, ReviewerCamelCase } from "../types/managerTypes";
 
-type Application = {
-  id: number;
-  applicant: string;
-  slug: string;
-  submitted: string;
-  assignedReviewer: string | null;
-  status: 'Under Review' | 'New';
-};
+interface ApplicationsTableProps {
+  applications: ApplicationCamelCase[];
+  reviewers: ReviewerCamelCase[];
+  onAssignReviewer?: (applicationId: string, reviewerId: string) => void;
+}
 
-const applications: Application[] = [
-  {
-    id: 1,
-    applicant: 'Abel Tadesse',
-    slug: 'abel-tadesse',
-    submitted: 'Oct 26, 2023',
-    assignedReviewer: 'Jane R.',
-    status: 'Under Review',
-  },
-  {
-    id: 2,
-    applicant: 'Bethlehem Tadesse',
-    slug: 'bethlehem-tadesse',
-    submitted: 'Oct 25, 2023',
-    assignedReviewer: null,
-    status: 'New',
-  },
-];
-
-const reviewers = ['Abebe Kebede', 'Alemu Mossia'];
-
-export default function ApplicationsTable() {
-  const [openActionsId, setOpenActionsId] = useState<number | null>(null);
-  const [openAssignId, setOpenAssignId] = useState<number | null>(null);
+export default function ApplicationsTable({
+  applications,
+  reviewers,
+  onAssignReviewer,
+}: ApplicationsTableProps) {
+  const [openActionsId, setOpenActionsId] = useState<string | null>(null);
+  const [openAssignId, setOpenAssignId] = useState<string | null>(null);
 
   return (
     <div className="bg-white shadow rounded p-6 max-w-3xl w-full">
@@ -67,7 +48,7 @@ export default function ApplicationsTable() {
                   {applicant}
                 </Link>
               </td>
-              <td className="p-3">{submitted}</td>
+              <td className="p-3">{new Date(submitted).toLocaleDateString()}</td>
               <td className="p-3 text-gray-400">
                 {assignedReviewer || (
                   <span className="italic text-gray-300">Not Assigned</span>
@@ -76,25 +57,24 @@ export default function ApplicationsTable() {
               <td className="p-3">
                 <span
                   className={`text-xs px-2 py-1 rounded ${
-                    status === 'Under Review'
-                      ? 'bg-yellow-200 text-yellow-800'
-                      : 'bg-blue-200 text-blue-800'
+                    status === "in_progress"
+                      ? "bg-yellow-200 text-yellow-800"
+                      : status === "accepted"
+                      ? "bg-green-200 text-green-800"
+                      : "bg-blue-200 text-blue-800"
                   }`}
                 >
-                  {status}
+                  {status.replace(/_/g, " ")}
                 </span>
               </td>
               <td className="p-3 relative">
                 <button
-                  onClick={() =>
-                    setOpenActionsId(openActionsId === id ? null : id)
-                  }
+                  onClick={() => setOpenActionsId(openActionsId === id ? null : id)}
                   className="text-blue-600 text-sm hover:underline focus:outline-none"
                 >
                   Actions ▼
                 </button>
 
-                {/* Actions Dropdown */}
                 {openActionsId === id && (
                   <div
                     className="absolute top-full right-0 mt-1 w-40 bg-white shadow-md rounded border border-gray-200 z-10"
@@ -112,14 +92,11 @@ export default function ApplicationsTable() {
                     <div className="relative group">
                       <button
                         className="flex w-full text-left px-4 py-2 hover:bg-gray-100 justify-between items-center"
-                        onClick={() =>
-                          setOpenAssignId(openAssignId === id ? null : id)
-                        }
+                        onClick={() => setOpenAssignId(openAssignId === id ? null : id)}
                       >
                         Assign to Reviewer &raquo;
                       </button>
 
-                      {/* Assign Dropdown */}
                       {openAssignId === id && (
                         <div
                           className="absolute top-0 left-full mt-0 ml-1 w-48 bg-white shadow-md rounded border border-gray-200 z-20"
@@ -130,10 +107,12 @@ export default function ApplicationsTable() {
                           </div>
                           {reviewers.map((rev) => (
                             <button
-                              key={rev}
-                              onClick={() =>
-                                alert(`Assign ${applicant} to ${rev}`)
-                              }
+                              key={rev.id}
+                              onClick={() => {
+                                onAssignReviewer?.(id, rev.id);
+                                setOpenAssignId(null);
+                                setOpenActionsId(null);
+                              }}
                               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left"
                             >
                               <svg
@@ -155,7 +134,7 @@ export default function ApplicationsTable() {
                                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                 />
                               </svg>
-                              {rev}
+                              {rev.fullName}
                             </button>
                           ))}
                         </div>
