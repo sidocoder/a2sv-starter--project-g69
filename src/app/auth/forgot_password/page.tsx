@@ -2,21 +2,41 @@
 import { useState } from "react";
 import styles from "../login/styles";
 import Image from "next/image";
-
-
+import axios from "axios";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setMessage("");
+    setError("");
 
-    setTimeout(() => {
-      alert(`Reset link sent to ${email}`);
+    try {
+      await axios.post("https://a2sv-application-platform-backend-team12.onrender.com/auth/forgot-password/", {
+        email,
+        callback_url: "http://localhost:3000/auth/reset_password"
+      });
+    
+      setMessage("If this email is registered, you will receive a reset link.");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        // Axios error with possible response data
+        setError(err.response?.data?.message || "Something went wrong.");
+      } else if (err instanceof Error) {
+        // Native JS error
+        setError(err.message);
+      } else {
+        // Unknown error type fallback
+        setError("Something went wrong.");
+      }
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -71,7 +91,10 @@ export default function ForgotPassword() {
             >
               {loading ? "Sending..." : "Send reset link"}
             </button>
-          </form>
+          </form>           
+
+          {message && <p className="mt-4 text-green-600 text-sm text-center">{message}</p>}
+          {error && <p className="mt-4 text-red-600 text-sm text-center">{error}</p>}
 
           <div className="text-center mt-4">
             <a href="./login" className="text-indigo-600 hover:underline">

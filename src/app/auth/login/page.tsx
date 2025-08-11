@@ -4,11 +4,14 @@ import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
 import { useSelector } from "react-redux";
-import { loginUser } from "../../../store/authSlice";
+import { loginUser,setTokens } from "../../../store/authSlice";
 import { RootState } from "../../../store";
 import { useAppDispatch } from "@/store/hook";
+import { useRouter } from "next/navigation";
+
 
 export default function LoginPage() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { loading, error } = useSelector((state: RootState) => state.auth);
 
@@ -27,7 +30,7 @@ export default function LoginPage() {
     setErrors({ ...errors, [e.target.name]: "" }); // Clear error on change
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     let valid = true;
     const newErrors = {
@@ -47,8 +50,29 @@ export default function LoginPage() {
     setErrors(newErrors);
 
     if (valid) {
-      dispatch(loginUser(formData));
+      const resultAction = await dispatch(loginUser(formData));
+    
+      if (loginUser.fulfilled.match(resultAction)) {
+        const { role, access, refresh } = resultAction.payload.data;
+    
+        // Store token in redux/localStorage via setTokens if needed
+        dispatch(setTokens({ access, refresh, role }));
+    
+        // Redirect based on role
+        if (role === "admin") {
+          router.push("../../admin");
+        } else if (role === "reviewer") {
+          router.push("../../reviewer");
+        } else if (role === "manager") {
+          router.push("../../manager");
+        } else {
+          router.push("../../applicant");
+        }
+      } else {
+        console.error("Login failed:", resultAction.payload);
+      }
     }
+    
   };
 
   return (

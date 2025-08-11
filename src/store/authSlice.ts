@@ -12,7 +12,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  token: { access: string; refresh: string } | null;
+  token: { access: string; refresh: string; role?: string } | null;  // added role
 }
 
 interface AuthFormData {
@@ -29,12 +29,11 @@ interface LoginResponse {
   data: {
     access: string;
     refresh: string;
-    role: string;
+    role: string;  // role included here
   };
   message: string;
 }
 
-// Register thunk
 export const registerUser = createAsyncThunk<
   { message: string; token?: string },
   RegisterFormData,
@@ -46,7 +45,7 @@ export const registerUser = createAsyncThunk<
       email: formData.email,
       password: formData.password,
     };
-    const axiosInstance = createAxiosInstance({} as AppDispatch); // dispatch not needed here
+    const axiosInstance = createAxiosInstance({} as AppDispatch);
     const response = await axiosInstance.post(`${API_URL}/register`, payload);
     return response.data;
   } catch (error: unknown) {
@@ -57,7 +56,6 @@ export const registerUser = createAsyncThunk<
   }
 });
 
-// Login thunk (needs dispatch)
 export const loginUser = createAsyncThunk<
   LoginResponse,
   AuthFormData,
@@ -79,14 +77,38 @@ export const loginUser = createAsyncThunk<
   }
 });
 
+// Safely parse token from localStorage, with fallback for string tokens
+const getStoredToken = (): AuthState["token"] => {
+  if (typeof window === "undefined") return null;
+
+  const tokenString = localStorage.getItem("token");
+  if (!tokenString) return null;
+
+  try {
+    // Try parsing as JSON (expected)
+    const parsed = JSON.parse(tokenString);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "access" in parsed &&
+      "refresh" in parsed
+    ) {
+      return parsed;
+    }
+    // If parsed but missing expected keys, fallback to null
+    return null;
+  } catch {
+    // If parse fails, assume tokenString is raw access token string
+    // We don't have refresh or role info, so keep minimal info
+    return { access: tokenString, refresh: "", role: undefined };
+  }
+};
+
 const initialState: AuthState = {
   loading: false,
   error: null,
   success: false,
-  token:
-    typeof window !== "undefined" && localStorage.getItem("token")
-      ? JSON.parse(localStorage.getItem("token")!)
-      : null,
+  token: getStoredToken(),
 };
 
 const authSlice = createSlice({
@@ -101,10 +123,10 @@ const authSlice = createSlice({
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
     },
-    setTokens(state, action: PayloadAction<{ access: string; refresh: string }>) {
-      const { access, refresh } = action.payload;
-      state.token = { access, refresh };
-      localStorage.setItem("token", JSON.stringify({ access, refresh }));
+    setTokens(state, action: PayloadAction<{ access: string; refresh: string; role?: string }>) {
+      const { access, refresh, role } = action.payload;
+      state.token = { access, refresh, role };
+      localStorage.setItem("token", JSON.stringify({ access, refresh, role }));
       localStorage.setItem("refreshToken", refresh);
     },
   },
@@ -136,6 +158,7 @@ const authSlice = createSlice({
 
         const accessToken = action.payload.data?.access;
         const refreshToken = action.payload.data?.refresh;
+        const role = action.payload.data?.role;
 
         if (
           accessToken &&
@@ -143,10 +166,10 @@ const authSlice = createSlice({
           refreshToken &&
           typeof refreshToken === "string"
         ) {
-          state.token = { access: accessToken, refresh: refreshToken };
+          state.token = { access: accessToken, refresh: refreshToken, role };
           localStorage.setItem(
             "token",
-            JSON.stringify({ access: accessToken, refresh: refreshToken })
+            JSON.stringify({ access: accessToken, refresh: refreshToken, role })
           );
           localStorage.setItem("refreshToken", refreshToken);
         } else {

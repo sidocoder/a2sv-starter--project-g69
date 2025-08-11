@@ -219,7 +219,7 @@ export default function RegisterPage() {
           <div>
             <div className={styles.footerLogo}>
               <Image
-                src="/images/logo1.png"
+                src="/images/A2SV.png"
                 alt="A2SV Logo"
                 width={0}
                 height={0}
