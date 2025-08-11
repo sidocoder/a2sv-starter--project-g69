@@ -6,10 +6,23 @@ import Nav from '../components/AdminNavbar';
 import Footer from '../components/AdminFooter';
 
 interface ApplicationCycle {
-  title: string;
-  description: string;
-  country: string;
-  status: 'Active' | 'Closed';
+  id: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: {
+    cycles: ApplicationCycle[];
+    total_count: number;
+    page: number;
+    limit: number;
+  };
+  message: string;
 }
 
 const ApplicationCycles: React.FC = () => {
@@ -23,15 +36,18 @@ const ApplicationCycles: React.FC = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const visibleItems = applicationCycles.slice(startIndex, startIndex + itemsPerPage);
 
-
   useEffect(() => {
     const fetchCycles = async () => {
       try {
-        const response = await fetch('https://a2sv-application-platform-backend-team12.onrender.com/docs/'); 
+        const response = await fetch(
+          'https://a2sv-application-platform-backend-team12.onrender.com/api/cycles'
+        );
         if (!response.ok) throw new Error('Failed to fetch data');
-        const data = await response.json();
-        setApplicationCycles(data);
+
+        const json: ApiResponse = await response.json();
+        setApplicationCycles(json.data.cycles);
       } catch (err) {
+        console.error(err);
         setError('Something went wrong while fetching application cycles.');
       } finally {
         setLoading(false);
@@ -48,7 +64,7 @@ const ApplicationCycles: React.FC = () => {
   };
 
   return (
-    <div className='bg-gray-100 min-h-screen'>
+    <div className="bg-gray-100 min-h-screen">
       <Nav />
       <div className="p-8">
         <div className="flex justify-between items-center mb-6">
@@ -68,8 +84,14 @@ const ApplicationCycles: React.FC = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visibleItems.map((cycle, index) => (
-                <ApplicationCard key={index} {...cycle} />
+              {visibleItems.map((cycle) => (
+                <ApplicationCard
+                  key={cycle.id}
+                  name={cycle.name}
+                  start_date={cycle.start_date}
+                  end_date={cycle.end_date}
+                  status={cycle.is_active ? 'Active' : 'Closed'}
+                />
               ))}
             </div>
             <div className="mt-6 text-sm text-gray-500">
@@ -107,7 +129,7 @@ const ApplicationCycles: React.FC = () => {
           </>
         )}
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

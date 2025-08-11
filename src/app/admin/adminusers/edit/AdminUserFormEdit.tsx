@@ -50,7 +50,7 @@ const EditUserPage = () => {
 
       if (res.ok) {
         console.log('User updated');
-        router.push('/admin/admindashboard/adminusers'); 
+        router.push('/admin/adminusers'); 
       } else {
         console.error('Failed to update user');
       }
