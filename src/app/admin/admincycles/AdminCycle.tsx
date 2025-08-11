@@ -8,6 +8,7 @@ import Footer from '../components/AdminFooter';
 interface ApplicationCycle {
   id: number;
   name: string;
+  description: string;
   start_date: string;
   end_date: string;
   is_active: boolean;
@@ -89,6 +90,7 @@ const ApplicationCycles: React.FC = () => {
                   key={cycle.id}
                   name={cycle.name}
                   start_date={cycle.start_date}
+                  description={cycle.description}
                   end_date={cycle.end_date}
                   status={cycle.is_active ? 'Active' : 'Closed'}
                 />

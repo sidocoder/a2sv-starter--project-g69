@@ -2,12 +2,13 @@ import React from 'react';
 
 interface ApplicationCardProps {
   name: string;
+  description : string;
   start_date: string;
   end_date: string;
   status: 'Active' | 'Closed';
 }
 
-const ApplicationCard: React.FC<ApplicationCardProps> = ({ name, status, start_date, end_date }) => {
+const ApplicationCard: React.FC<ApplicationCardProps> = ({ name, status, start_date, description, end_date }) => {
   const badgeStyle =
     status === 'Active'
       ? 'bg-green-100 text-green-800'
@@ -24,7 +25,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ name, status, start_d
           {status === 'Active' ? 'Active' : 'Closed'}
         </span>
       </div>
-      <p className="text-sm text-gray-600 mb-2">{name}</p>
+      <p className="text-sm text-gray-600 mb-2">{description}</p>
       <p className="text-sm"><strong>start date:</strong> {start_date}</p>
       <p className="text-sm">
         <strong>Status:</strong>{' '}
