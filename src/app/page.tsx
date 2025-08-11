@@ -5,7 +5,7 @@ import Reveiwer from './reviewer/page'
 const page = () => {
   return (
     <div>
-      <Reveiwer />
+      {/* <Reveiwer /> */}
     </div>
   )
 }
