@@ -15,7 +15,7 @@ export default function Header() {
         <Link href="#Testimonials">Testimonials</Link>
       </nav>
       <Link
-        href="#"
+        href="../auth/login"
         className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-semibold"
       >
         Apply Now

@@ -47,6 +47,7 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
 
           const tokenObj: { access: string; refresh: string } = JSON.parse(tokenString);
           const refreshToken = tokenObj.refresh;
+          const role = tokenObj.role; // keep role from old token
           if (!refreshToken) throw new Error("No refresh token");
 
           const response = await axios.post(`${API_URL}/auth/token/refresh/`, {
@@ -56,7 +57,8 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
           const newAccessToken: string = response.data.data.access;
           if (!newAccessToken) throw new Error("No new access token");
 
-          dispatch(setTokens({ access: newAccessToken, refresh: refreshToken }));
+          // update Redux + localStorage, keep role
+          dispatch(setTokens({ access: newAccessToken, refresh: refreshToken, role }));
 
           if (!originalRequest.headers) {
             originalRequest.headers = {} as AxiosRequestHeaders;
@@ -67,6 +69,12 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
         } catch (refreshError) {
           localStorage.removeItem("token");
           dispatch(resetAuthState());
+
+          // Redirect to login page on refresh token failure
+          if (typeof window !== "undefined") {
+            window.location.href = "../app/auth/login";
+          }
+
           return Promise.reject(refreshError);
         }
       }
