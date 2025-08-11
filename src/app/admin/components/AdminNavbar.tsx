@@ -18,7 +18,7 @@ const Nav = () => {
   const profileItems = [
     { label: 'Your Profile', path: '/profile' },
     { label: 'Admin User', path: '/admin' },
-    { label: 'Logout', path: '/logout' }
+    { label: 'Logout', path: '/' }
   ]
 
   const isActive = (item: any) => {

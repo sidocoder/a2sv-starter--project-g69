@@ -33,7 +33,7 @@ const CreateNewUsers = () => {
 
       if (res.ok) {
         console.log('User created!');
-        router.push('/admin/admindashboard/adminusers'); // Navigate back to the user management page
+        router.push('/admin/adminusers'); // Navigate back to the user management page
       } else {
         console.error('Failed to create user');
       }
