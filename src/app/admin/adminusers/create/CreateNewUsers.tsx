@@ -3,42 +3,55 @@ import React, { useState } from 'react';
 import Nav from '../../components/AdminNavbar';
 import { useRouter } from 'next/navigation';
 import Button from '../../components/button/Button';
+import { useAppSelector, useAppDispatch } from '../../../../store/hook';
+import { createAxiosInstance } from '../../../../utils/axiosInstance';
 
 const CreateNewUsers = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  // STEP 1: Form state
+  // Token from Redux store
+  const token = useAppSelector((state) => state.auth.token?.access ?? null);
+  console.log(token)
+
+  // Axios instance (will auto-attach token if configured in utils)
+  const axiosInstance = createAxiosInstance(dispatch);
+
+  // Form state
   const [formData, setFormData] = useState({
-    name: '',
+    full_name: '',
     email: '',
     password: '',
     role: 'reviewer',
   });
 
-  // STEP 2: Handle changes
+  // Handle changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  // STEP 3: Handle submit
+  // Handle submit
   const handleCreateUser = async () => {
-    try {
-      const res = await fetch('https://a2sv-application-platform-backend-team12.onrender.com/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+    if (!token) {
+      console.error('No access token — please log in.');
+      return;
+    }
 
-      if (res.ok) {
+    try {
+      const res = await axiosInstance.post('/admin/users', formData);
+
+      if (res.data.success) {
         console.log('User created!');
-        router.push('/admin/adminusers'); // Navigate back to the user management page
+        router.push('/admin/adminusers');
       } else {
-        console.error('Failed to create user');
+        console.error('Failed to create user:', res.data);
       }
-    } catch (error) {
-      console.error('Error creating user:', error);
+    } catch (error: any) {
+      if (error.response) {
+        console.error('Error creating user:', error.response.data);
+      } else {
+        console.error('Error creating user:', error.message);
+      }
     }
   };
 
@@ -53,13 +66,13 @@ const CreateNewUsers = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
               Full Name
             </label>
             <input
               type="text"
-              id="name"
-              value={formData.name}
+              id="full_name"
+              value={formData.full_name}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Jane Reviewer"

@@ -1,13 +1,13 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import Nav from '../components/AdminNavbar';
 import Footer from '../components/AdminFooter';
 import Link from 'next/link';
-
-// import axios from 'axios';
 import { useAppSelector, useAppDispatch } from '../../../store/hook';
-import { createAxiosInstance } from '../../../utils/axiosInstance'; // adjust path as needed
+import { createAxiosInstance } from '../../../utils/axiosInstance';
+
 
 interface User {
   id: string;
@@ -17,29 +17,30 @@ interface User {
   is_active: boolean;
 }
 
-const roles = ['All Roles', 'Applicant', 'Reviewer', 'Manager', 'Admin'];
-
+const roles = ["All Roles", "Applicant", "Reviewer", "Manager", "Admin"];
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [search, setSearch] = useState('');
-  const [selectedRole, setSelectedRole] = useState('All Roles');
+  const [search, setSearch] = useState("");
+  const [selectedRole, setSelectedRole] = useState("All Roles");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const usersPerPage = 4;
 
   const dispatch = useAppDispatch();
 
-//getting the token from the Redux store
+  // Getting the token from the Redux store
   const token = useAppSelector((state) => state.auth.token?.access ?? null);
 
-  const axiosInstance = createAxiosInstance(dispatch);
-
+  // Create axios instance once per component lifecycle
+  const axiosInstance = React.useMemo(() => createAxiosInstance(dispatch), [dispatch]);
 
   useEffect(() => {
     const fetchUsers = async () => {
       if (!token) {
-        console.error('No access token found.');
+        console.error("No access token found.");
+        setUsers([]);
+        setTotalUsers(0);
         return;
       }
 
@@ -53,59 +54,70 @@ const UserManagement = () => {
           params.search = search.trim();
         }
 
-        if (selectedRole !== 'All Roles') {
-          params.role = selectedRole;
+        if (selectedRole !== "All Roles") {
+          params.role = selectedRole.toLowerCase();
         }
+          // response from the API
+        const response = await axiosInstance.get("/admin/users", { params });
 
-        // Use axiosInstance without manually setting Authorization header
-        const response = await axiosInstance.get(
-          '/admin/users',
-          {
-            params,
+        if (response.data?.success) {
+          const items = response.data.data?.users;
+          if (Array.isArray(items)) {
+            setUsers(items);
+            setTotalUsers(response.data.data.total_count || 0);
+          } else {
+            console.warn("Users items is not an array, setting empty array");
+            setUsers([]);
+            setTotalUsers(0);
           }
-        );
-
-        if (response.data.success) {
-          setUsers(response.data.data.items);
-          setTotalUsers(response.data.data.total_count);
+        } else {
+          console.error("API call unsuccessful", response.data);
+          setUsers([]);
+          setTotalUsers(0);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
+        setUsers([]);
+        setTotalUsers(0);
       }
     };
 
     fetchUsers();
   }, [currentPage, search, selectedRole, token, axiosInstance]);
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase());
-    const matchesRole =
-      selectedRole === 'All Roles' || user.role.toLowerCase() === selectedRole.toLowerCase();
-    return matchesSearch && matchesRole;
-  });
+  // Defensive: ensure users is always an array before filter
+  const filteredUsers = Array.isArray(users)
+    ? users.filter((user) => {
+        const matchesSearch =
+          user.full_name.toLowerCase().includes(search.toLowerCase()) ||
+          user.email.toLowerCase().includes(search.toLowerCase());
+        const matchesRole =
+          selectedRole === "All Roles" || user.role.toLowerCase() === selectedRole.toLowerCase();
+        return matchesSearch && matchesRole;
+      })
+    : [];
 
   const totalPages = Math.ceil(totalUsers / usersPerPage);
 
   const handleDelete = async (id: string) => {
     if (!token) {
-      console.error('No access token found — please log in.');
+      console.error("No access token found — please log in.");
       return;
     }
-    const confirmed = confirm('Are you sure you want to delete this user?');
+
+    const confirmed = window.confirm("Are you sure you want to delete this user?");
     if (!confirmed) return;
 
     try {
-      // Use axiosInstance without manually setting Authorization header
       await axiosInstance.delete(`/admin/users/${id}`);
 
+      // Remove deleted user from local state
       setUsers((prev) => prev.filter((user) => user.id !== id));
+      setTotalUsers((prev) => (prev > 0 ? prev - 1 : 0));
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error("Error deleting user:", error);
     }
   };
-
   return (
     <div className="bg-gray-100 min-h-screen">
       <Nav />
