@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function HeroSection() {
   return (
@@ -21,9 +22,12 @@ export default function HeroSection() {
           Join an elite community of Africa’s brightest minds, and get fast-tracked to a
           software engineering career at the world’s leading tech companies.
         </p>
-        <button className="bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-md font-semibold text-sm md:text-base">
-          Start Your Application
-        </button>
+        <Link
+        href="../auth/login"
+        className="bg-white text-indigo-700  px-5 py-2 rounded-md font-semibold"
+      >
+        Start Your Application
+      </Link>
       </div>
     </section>
   );
