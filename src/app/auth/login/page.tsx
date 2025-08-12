@@ -6,26 +6,17 @@ import styles from "./styles";
 import { useAppSelector } from "@/store/hook";
 import { loginUser, setTokens } from "../../../store/authSlice";
 import { useAppDispatch } from "@/store/hook";
-
+import { RootState } from "@/store";
 import { useRouter } from "next/navigation";
 
 
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state: RootState) => state.auth);
 
-  const { loading, error } = useAppSelector((state) => state.auth);
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,7 +27,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setInfoMessage(null);
 
     let valid = true;
@@ -56,46 +46,38 @@ export default function LoginPage() {
 
     try {
       const resultAction = await dispatch(loginUser(formData));
-    
       if (loginUser.fulfilled.match(resultAction)) {
         const { role, access, refresh } = resultAction.payload.data;
-
         dispatch(setTokens({ access, refresh, role }));
-        console.log("role> ", role);
+
         if (!role) {
-          // Show message and DO NOT redirect
           setInfoMessage(
             "Your account has no role assigned yet. Please register or contact support."
           );
-          return; // Stop here, no redirect
+          return;
         }
 
-        // Redirect based on role - ONLY if role exists
+        // Redirect based on role
         if (role === "admin") router.push("/admin");
         else if (role === "reviewer") router.push("/reviewer");
         else if (role === "manager") router.push("/manager");
         else router.push("/applicant");
       } else {
-        // This case rarely runs; show login failure message, no redirect
         setInfoMessage("Login failed. Please try to register first.");
       }
     } catch (err) {
-      // Show error message, no redirect
       let errorMsg = "Login failed. Please try again.";
       if (typeof err === "string") errorMsg = err;
       else if (err && typeof err === "object" && "message" in err)
         errorMsg = (err as { message: string }).message;
 
       setInfoMessage(errorMsg);
-
     }
   };
 
-  // Helper to safely get error message string from error object or string
   function getErrorMessage(err: unknown): string {
     if (!err) return "";
     if (typeof err === "string") return err;
-
     if (
       typeof err === "object" &&
       err !== null &&
@@ -104,7 +86,6 @@ export default function LoginPage() {
     ) {
       return (err as { message: string }).message;
     }
-
     try {
       return JSON.stringify(err);
     } catch {
@@ -181,7 +162,9 @@ export default function LoginPage() {
                 onChange={handleChange}
                 autoComplete="email"
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -217,11 +200,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <button
-                type="submit"
-                className={styles.submit}
-                disabled={loading}
-              >
+              <button type="submit" className={styles.submit} disabled={loading}>
                 <Image
                   src="/images/logo.png"
                   alt=""
@@ -235,12 +214,10 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Render error message safely */}
             {error && (
               <p className="text-red-500 text-sm mt-2">{getErrorMessage(error)}</p>
             )}
 
-            {/* Show info message */}
             {infoMessage && (
               <p className="text-yellow-600 text-sm mt-2">{infoMessage}</p>
             )}
@@ -250,7 +227,7 @@ export default function LoginPage() {
 
       {/* Footer */}
       <footer className={styles.footer}>
-        {/* footer content omitted for brevity */}
+        {/* Your footer content here */}
       </footer>
     </div>
   );
