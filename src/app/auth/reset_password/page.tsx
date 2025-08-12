@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation"; // Next.js 13+ hooks
+import { useSearchParams, useRouter } from "next/navigation"; 
 import styles from "../login/styles";
 import Image from "next/image";
 import axios from "axios";

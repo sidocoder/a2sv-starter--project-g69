@@ -5,6 +5,7 @@ import "./globals.css";
 import ProviderWrapper from "./ProviderWrapper";
 import AuthGuard from "./AuthGuard";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Your App Title",
-  description: "Your App Description",
+  title: "A2SV Application",
+  description: "A2SV application for managing users and admin tasks",
 };
 
 export default function RootLayout({
@@ -25,6 +26,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   const bodyClassName = `${geistSans.variable} ${geistMono.variable}`;
 
   return (
