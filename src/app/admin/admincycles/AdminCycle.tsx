@@ -52,7 +52,6 @@ const ApplicationCycles: React.FC = () => {
         if (response.data?.success) {
           setApplicationCycles(response.data.data?.cycles || []);
           setTotalCycles(response.data.data?.total_count || 0);
-          console.log('Fetched application cycles:', response.data.data.cycles);
         } else {
           console.error('API call unsuccessful', response.data);
           setApplicationCycles([]);
@@ -79,26 +78,20 @@ const ApplicationCycles: React.FC = () => {
     }
   };
 
-  // New: toggle status handler
   const toggleCycleStatus = async (id: number) => {
     try {
-      // Find the cycle to toggle
       const cycle = applicationCycles.find((c) => c.id === id);
       if (!cycle) return;
 
-      // Optimistically update UI
       setApplicationCycles((prev) =>
         prev.map((c) =>
           c.id === id ? { ...c, is_active: !c.is_active } : c
         )
       );
 
-      // Send update to server - assuming PATCH /cycles/:id/status or similar
       const response = await axiosInstance.patch(`admin/cycles/${id}/activate`);
 
-
       if (!response.data?.success) {
-        // If update failed, revert state change
         setApplicationCycles((prev) =>
           prev.map((c) =>
             c.id === id ? { ...c, is_active: cycle.is_active } : c
@@ -109,13 +102,24 @@ const ApplicationCycles: React.FC = () => {
     } catch (error) {
       console.error('Error toggling cycle status:', error);
       alert('An error occurred while toggling status.');
+    }
+  };
 
-      // Revert UI update on error
-      setApplicationCycles((prev) =>
-        prev.map((c) =>
-          c.id === id ? { ...c, is_active: c.is_active } : c
-        )
-      );
+  const deleteCycle = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this cycle?')) return;
+
+    try {
+      const res = await axiosInstance.delete(`/admin/cycles/${id}`);
+      if (res.data?.success) {
+        setApplicationCycles((prev) => prev.filter((cycle) => cycle.id !== id));
+        setTotalCycles((prev) => prev - 1);
+        alert('Cycle deleted successfully ✅');
+      } else {
+        alert('Failed to delete cycle ❌');
+      }
+    } catch (error) {
+      console.error('Error deleting cycle:', error);
+      alert('An error occurred while deleting the cycle ❌');
     }
   };
 
@@ -150,6 +154,7 @@ const ApplicationCycles: React.FC = () => {
                   end_date={cycle.end_date}
                   status={cycle.is_active ? 'Active' : 'Closed'}
                   onToggleStatus={() => toggleCycleStatus(cycle.id)}
+                  onDelete={() => deleteCycle(cycle.id)}
                 />
               ))}
             </div>
