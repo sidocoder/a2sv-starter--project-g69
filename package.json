@@ -24,11 +24,8 @@
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-redux": "^9.2.0",
-<<<<<<< HEAD
     "reselect": "^5.1.1",
-=======
     "recharts": "^3.1.2",
->>>>>>> 15c7c73c1960e832199ff4c35a46c5cb93482e94
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
