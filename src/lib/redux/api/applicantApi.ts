@@ -1,4 +1,5 @@
 import api from "./axiosInstance";
+import axios from "axios";
 
 // POST - Start Application
 const tokenString = localStorage.getItem("token");
@@ -49,3 +50,21 @@ export const submitApplication = () =>
       "Authorization": `Bearer ${token?.access ?? ""}`,
     }
   });
+
+
+export async function getReviewDetails(application_id: string) {
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/applicant/${application_id}/review-details`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // adjust if your token storage is different
+        },
+      }
+    );
+    return res;
+  } catch (error) {
+    console.error("Error fetching review details:", error);
+    throw error;
+  }
+}

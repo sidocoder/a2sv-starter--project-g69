@@ -6,36 +6,31 @@ import styles from "./styles";
 import { useSelector } from "react-redux";
 import { loginUser, setTokens } from "../../../store/authSlice";
 import { RootState } from "../../../store";
+import { useAppSelector } from "@/store/hook";
 import { useAppDispatch } from "@/store/hook";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { loading, error } = useAppSelector((state: RootState) => state.auth);
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear error on change
+    setErrors({ ...errors, [e.target.name]: "" });
+    setInfoMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setInfoMessage(null);
+
     let valid = true;
-    const newErrors = {
-      email: "",
-      password: "",
-    };
+    const newErrors = { email: "", password: "" };
 
     if (!formData.email.trim()) {
       newErrors.email = "Please enter your email";
@@ -45,10 +40,11 @@ export default function LoginPage() {
       newErrors.password = "Please enter your password";
       valid = false;
     }
-
     setErrors(newErrors);
 
-    if (valid) {
+    if (!valid) return;
+
+    try {
       const resultAction = await dispatch(loginUser(formData));
 
       if (loginUser.fulfilled.match(resultAction)) {
@@ -66,12 +62,44 @@ export default function LoginPage() {
           router.push("../../manager");
         } else {
           router.push("../../applicant/application");
+
         }
+
+        // Redirect based on role
+        if (role === "admin") router.push("/admin");
+        else if (role === "reviewer") router.push("/reviewer");
+        else if (role === "manager") router.push("/manager");
+        else router.push("/applicant");
       } else {
-        console.error("Login failed:", resultAction.payload);
+        setInfoMessage("Login failed. Please try to register first.");
       }
+    } catch (err) {
+      let errorMsg = "Login failed. Please try again.";
+      if (typeof err === "string") errorMsg = err;
+      else if (err && typeof err === "object" && "message" in err)
+        errorMsg = (err as { message: string }).message;
+
+      setInfoMessage(errorMsg);
     }
   };
+
+  function getErrorMessage(err: unknown): string {
+    if (!err) return "";
+    if (typeof err === "string") return err;
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "message" in err &&
+      typeof (err as { message?: unknown }).message === "string"
+    ) {
+      return (err as { message: string }).message;
+    }
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -102,6 +130,7 @@ export default function LoginPage() {
           </a>
         </nav>
       </header>
+
       {/* Login Form */}
       <main className={styles.main}>
         <div className={styles.formWrapper}>
@@ -125,6 +154,7 @@ export default function LoginPage() {
               Create a new applicant account
             </a>
           </p>
+
           <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="sr-only">
@@ -138,11 +168,13 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.email}
                 onChange={handleChange}
+                autoComplete="email"
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
               )}
             </div>
+
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
@@ -155,11 +187,13 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="current-password"
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}
             </div>
+
             <div className={styles.options}>
               <label className={styles.remember}>
                 <input type="checkbox" className="mr-2" />
@@ -172,6 +206,7 @@ export default function LoginPage() {
                 Forgot your password?
               </a>
             </div>
+
             <div>
               <button
                 type="submit"
@@ -179,7 +214,7 @@ export default function LoginPage() {
                 disabled={loading}
               >
                 <Image
-                  src="/images/lock.png"
+                  src="/images/logo.png"
                   alt=""
                   width={0}
                   height={0}
@@ -190,7 +225,14 @@ export default function LoginPage() {
                 {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
+            {error && (
+              <p className="text-red-500 text-sm mt-2">{getErrorMessage(error)}</p>
+            )}
+
+            {infoMessage && (
+              <p className="text-yellow-600 text-sm mt-2">{infoMessage}</p>
+            )}
           </form>
         </div>
       </main>

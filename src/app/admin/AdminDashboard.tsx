@@ -1,11 +1,88 @@
-import React from 'react'
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Nav from './components/AdminNavbar';
 import Footer from './components/AdminFooter';
 import Link from 'next/link';
 import {UserPlus} from 'lucide-react'
 import {Calendar} from 'lucide-react';
+import { useAppSelector, useAppDispatch } from '../../store/hook';
+import { createAxiosInstance } from '../../utils/axiosInstance';
 
-const AdminDashboard = () => {
+
+interface ApplicationCycle {
+  id: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+const AdminDashboard: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.token?.access ?? null);
+  const axiosInstance = React.useMemo(() => createAxiosInstance(dispatch), [dispatch]);
+
+  const [cycles, setCycles] = useState<ApplicationCycle[]>([]);
+  const [totalApplicants, setTotalApplicants] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activatingCycleId, setActivatingCycleId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!token) {
+        setError('No access token found.');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        // Fetch active cycles from /cycles/active  // ADD
+        const activeCyclesResponse = await axiosInstance.get('/cycles/active', { params: { page: 1, limit: 10 } }); // ADD
+        if (activeCyclesResponse.data?.success) { // ADD
+          setCycles(activeCyclesResponse.data.data.cycles || []); // ADD
+        } else { // ADD
+          setError('Failed to fetch active cycles'); // ADD
+        } // ADD
+
+        // Fetch applications
+        const appsResponse = await axiosInstance.get('/manager/applications/', { params: { page: 1, limit: 10 } });
+        if (appsResponse.data?.success) {
+          setTotalApplicants(appsResponse.data.data.total_count || 0);
+        } else {
+          setError('Failed to fetch applications');
+        }
+
+        // Fetch total users
+        const usersResponse = await axiosInstance.get('/admin/users', { params: { page: 1, limit: 10 } });
+        if (usersResponse.data?.success) {
+          setTotalUsers(usersResponse.data.data.total_count || 0);
+        } else {
+          setError('Failed to fetch users');
+        }
+
+      } catch (err) {
+        setError('Failed to fetch dashboard data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [token, axiosInstance]);
+
+  const activeCyclesCount = cycles.filter(cycle => cycle.is_active).length;
+
+  if (loading) return <p>Loading dashboard data...</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
+
+
   return (
     <div className='min-h-screen bg-gray-100'>
         <Nav />
@@ -15,15 +92,15 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="rounded-xl bg-gradient-to-r from-purple-600 to-violet-500 text-white p-4 shadow-2xl">
             <p className="text-sm">Total Users</p>
-            <p className="text-3xl font-bold">125</p>
+            <p className="text-3xl font-bold">{totalUsers}</p>
             </div>
             <div className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-400 text-white p-4 shadow-2xl">
-            <p className="text-sm">Total Applicants (67)</p>
-            <p className="text-3xl font-bold">1,204</p>
+            <p className="text-sm">Total Applicants</p>
+            <p className="text-3xl font-bold">{totalApplicants}</p>
             </div>
             <div className="rounded-xl bg-gradient-to-r from-orange-600 to-amber-400 text-white p-4 shadow-2xl">
             <p className="text-sm">Active Cycles</p>
-            <p className="text-3xl font-bold">1</p>
+            <p className="text-3xl font-bold">{activeCyclesCount}</p>
             </div>
         </div>
 

@@ -1,4 +1,3 @@
-// src/utils/axiosInstance.ts
 import axios, { AxiosInstance } from "axios";
 import type { AppDispatch } from "../store";
 import { setTokens, resetAuthState } from "../store/authSlice";
@@ -35,6 +34,7 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
+
       if (
         error.response?.status === 401 &&
         !originalRequest._retry &&
@@ -69,9 +69,7 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
           dispatch(resetAuthState());
 
           // Redirect to login page on refresh token failure
-          if (typeof window !== "undefined") {
-            window.location.href = "../app/auth/login";
-          }
+        //window.location.href = "../app/auth/login";
 
           return Promise.reject(refreshError);
         }

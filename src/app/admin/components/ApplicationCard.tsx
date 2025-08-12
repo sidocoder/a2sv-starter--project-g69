@@ -1,35 +1,56 @@
-import React from 'react';
+import { Trash2 } from "lucide-react";
 
 interface ApplicationCardProps {
-  title: string;
+  name: string;
   description: string;
-  country: string;
+  start_date: string;
+  end_date: string;
   status: 'Active' | 'Closed';
+  onToggleStatus: () => void; 
+  onDelete: () => void; // new prop
 }
 
-const ApplicationCard: React.FC<ApplicationCardProps> = ({ title, description, country, status }) => {
-  const badgeStyle =
-    status === 'Active'
-      ? 'bg-green-100 text-green-800'
-      : 'bg-red-100 text-red-600';
-
-  const textStyle =
-    status === 'Active' ? 'text-green-600' : 'text-gray-500';
-
+const ApplicationCard: React.FC<ApplicationCardProps> = ({
+  name,
+  description,
+  start_date,
+  end_date,
+  status,
+  onToggleStatus,
+  onDelete
+}) => {
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-72">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="font-semibold">{title}</h3>
-        <span className={`text-xs px-2 py-1 rounded ${badgeStyle}`}>
-          {status === 'Active' ? 'Active' : 'Closed'}
-        </span>
+    <div className="bg-white p-4 rounded-lg shadow-md">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-bold">{name}</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={onToggleStatus}
+            className={`px-3 py-1 rounded-full ${
+              status === 'Active'
+                ? 'bg-green-400 hover:bg-green-500 text-white'
+                : 'bg-orange-300 hover:bg-orange-400 text-red-500'
+            }`}
+          >
+            {status}
+          </button>
+          
+        </div>
       </div>
-      <p className="text-sm text-gray-600 mb-2">{description}</p>
-      <p className="text-sm"><strong>Country:</strong> {country}</p>
-      <p className="text-sm">
-        <strong>Status:</strong>{' '}
-        <span className={textStyle}>{status}</span>
-      </p>
+      <p className="text-sm text-gray-500 mt-1">{description}</p>
+      <div className="mt-2 text-sm">
+        <p>Start: {start_date}</p>
+        <p>End: {end_date}</p>
+      </div>
+      <div className="">
+        <button
+            onClick={onDelete}
+            className="p-1 mt-2 bg-red-100 rounded-full hover:bg-red-100 text-red-600 "
+            title="Delete Cycle"
+          >
+            <Trash2 size={18} />
+          </button>
+      </div>
     </div>
   );
 };

@@ -213,7 +213,7 @@ function InterviewPrepCard() {
     <div className="bg-gradient-to-br from-blue-600 to-purple-700 text-white p-6 rounded-lg shadow-sm">
       <h2 className="text-xl font-bold mb-2">Get Ready for the Interview!</h2>
       <p className="text-sm mb-4">
-        While you wait, it's a great time to prepare. Practice your
+        While you wait, it&apos;s a great time to prepare. Practice your
         problem-solving skills on platforms like LeetCode and Codeforces.
       </p>
       <Link
@@ -238,7 +238,7 @@ export default function ApplicantDashboardPage() {
               Your Application Progress
             </h1>
             <p className="text-gray-600 mt-1">
-              You're on your way! Here's a summary of your application status.
+                You&apos;re on your way! Here&apos;s a summary of your application status.
             </p>
           </div>
 
