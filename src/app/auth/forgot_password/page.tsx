@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import styles from "../login/styles";
 import Image from "next/image";
@@ -17,21 +18,23 @@ export default function ForgotPassword() {
     setError("");
 
     try {
-      await axios.post("https://a2sv-application-platform-backend-team12.onrender.com/auth/forgot-password/", {
-        email,
-        callback_url: "http://localhost:3000/auth/reset_password"
-      });
-    
-      setMessage("If this email is registered, you will receive a reset link.");
+      await axios.post(
+        "https://a2sv-application-platform-backend-team12.onrender.com/auth/forgot-password/",
+        {
+          email,
+          callback_url: `${window.location.origin}/auth/reset_password`
+        }
+      );
+
+      setMessage(
+        "If this email is registered, you will receive a reset link shortly."
+      );
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        // Axios error with possible response data
         setError(err.response?.data?.message || "Something went wrong.");
       } else if (err instanceof Error) {
-        // Native JS error
         setError(err.message);
       } else {
-        // Unknown error type fallback
         setError("Something went wrong.");
       }
     } finally {
@@ -47,7 +50,6 @@ export default function ForgotPassword() {
           <div className="flex items-center space-x-2">
             <img src="/images/logo.png" alt="A2SV Logo" className="h-8" />
           </div>
-
           <nav className="flex space-x-6 text-gray-700">
             <a href="#" className="hover:text-gray-900">Home</a>
             <a href="#" className="hover:text-gray-900">About</a>
@@ -62,17 +64,18 @@ export default function ForgotPassword() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="flex flex-col items-center justify-center flex-grow px-6 py-12">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
           <div className="flex justify-center mb-4">
             <img src="/images/logo.png" alt="A2SV Logo" className="h-12" />
           </div>
+
           <h2 className="text-xl font-bold text-center mb-2">
             Forgot your password?
           </h2>
           <p className="text-center text-gray-600 mb-6 text-sm">
-            Enter your email and we’ll send you a link to get back into your account.
+            Enter your email and we’ll send you a link to reset your password.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,7 +94,7 @@ export default function ForgotPassword() {
             >
               {loading ? "Sending..." : "Send reset link"}
             </button>
-          </form>           
+          </form>
 
           {message && <p className="mt-4 text-green-600 text-sm text-center">{message}</p>}
           {error && <p className="mt-4 text-red-600 text-sm text-center">{error}</p>}

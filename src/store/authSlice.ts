@@ -1,4 +1,3 @@
-// src/authSlice.ts
 "use client";
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
@@ -12,7 +11,8 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  token: { access: string; refresh: string; role?: string } | null;  // added role
+  token: { access: string; refresh: string; role?: string } | null;
+
 }
 
 interface AuthFormData {
@@ -29,7 +29,8 @@ interface LoginResponse {
   data: {
     access: string;
     refresh: string;
-    role: string;  // role included here
+    role: string;
+
   };
   message: string;
 }
@@ -50,7 +51,14 @@ export const registerUser = createAsyncThunk<
     return response.data;
   } catch (error: unknown) {
     if (isAxiosError(error) && error.response) {
-      return rejectWithValue(error.response.data as string);
+      const data = error.response.data;
+      const msg =
+        typeof data === "string"
+          ? data
+          : data?.message && typeof data.message === "string"
+          ? data.message
+          : JSON.stringify(data) || "Registration failed";
+      return rejectWithValue(msg);
     }
     return rejectWithValue("Registration failed");
   }
@@ -71,13 +79,19 @@ export const loginUser = createAsyncThunk<
     return response.data;
   } catch (error: unknown) {
     if (isAxiosError(error) && error.response) {
-      return rejectWithValue(error.response.data as string);
+      const data = error.response.data;
+      const msg =
+        typeof data === "string"
+          ? data
+          : data?.message && typeof data.message === "string"
+          ? data.message
+          : JSON.stringify(data) || "Login failed";
+      return rejectWithValue(msg);
     }
     return rejectWithValue("Login failed");
   }
 });
 
-// Safely parse token from localStorage, with fallback for string tokens
 const getStoredToken = (): AuthState["token"] => {
   if (typeof window === "undefined") return null;
 
@@ -85,7 +99,6 @@ const getStoredToken = (): AuthState["token"] => {
   if (!tokenString) return null;
 
   try {
-    // Try parsing as JSON (expected)
     const parsed = JSON.parse(tokenString);
     if (
       parsed &&
@@ -95,11 +108,8 @@ const getStoredToken = (): AuthState["token"] => {
     ) {
       return parsed;
     }
-    // If parsed but missing expected keys, fallback to null
     return null;
   } catch {
-    // If parse fails, assume tokenString is raw access token string
-    // We don't have refresh or role info, so keep minimal info
     return { access: tokenString, refresh: "", role: undefined };
   }
 };
