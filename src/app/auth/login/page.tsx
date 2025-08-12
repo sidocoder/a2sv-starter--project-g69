@@ -226,7 +226,45 @@ export default function LoginPage() {
 
       {/* Footer */}
       <footer className={styles.footer}>
-        {/* Your footer content here */}
+        <div className={styles.footerGrid}>
+          <div>
+            <div className={styles.footerLogo}>
+              <Image
+                src="/images/A2SV.png"
+                alt="A2SV Logo"
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="h-8 w-auto"
+              />
+            </div>
+            <p>Preparing Africa’s top tech talent for global opportunities.</p>
+          </div>
+          <div>
+            <h4 className={styles.footerSectionTitle}>SOLUTIONS</h4>
+            <ul className="space-y-1">
+              <li>Student Training</li>
+              <li>Corporate Partnership</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className={styles.footerSectionTitle}>SUPPORT</h4>
+            <ul className="space-y-1">
+              <li>Contact Us</li>
+              <li>FAQ</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className={styles.footerSectionTitle}>COMPANY</h4>
+            <ul className="space-y-1">
+              <li>About</li>
+              <li>Blog</li>
+            </ul>
+          </div>
+        </div>
+        <div className={styles.copyright}>
+          &copy; 2023 A2SV. All rights reserved.
+        </div>
       </footer>
     </div>
   );
