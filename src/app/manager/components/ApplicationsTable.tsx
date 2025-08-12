@@ -6,7 +6,8 @@ import axios from "axios";
 
 type Reviewer = {
   id: string;
-  name: string;
+  full_name: string;
+  email: string;
 };
 
 type Application = {
@@ -51,7 +52,6 @@ export default function ApplicationsTable() {
           return;
         }
 
-        // Fetch applications and reviewers in parallel
         const [appsRes, reviewersRes] = await Promise.all([
           axios.get(
             "https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/",
@@ -67,7 +67,6 @@ export default function ApplicationsTable() {
           ),
         ]);
 
-        // Process applications
         if (appsRes.data.success) {
           const mappedApps: Application[] = appsRes.data.data.applications.map(
             (app: {
@@ -89,21 +88,13 @@ export default function ApplicationsTable() {
           setError(appsRes.data.message || "Failed to fetch applications");
         }
 
-        // Process reviewers safely, ensure it's an array
-        if (Array.isArray(reviewersRes.data)) {
-          setReviewers(reviewersRes.data);
-        } else if (Array.isArray(reviewersRes.data.data)) {
-          // Sometimes nested inside data
-          setReviewers(reviewersRes.data.data);
+        if (reviewersRes.data && reviewersRes.data.success) {
+          setReviewers(reviewersRes.data.data.reviewers || []);
         } else {
           setReviewers([]);
         }
       } catch (e) {
-        if (e instanceof Error) {
-          setError(e.message);
-        } else {
-          setError("Error fetching data");
-        }
+        setError(e instanceof Error ? e.message : "Error fetching data");
       } finally {
         setLoading(false);
       }
@@ -112,7 +103,7 @@ export default function ApplicationsTable() {
     fetchData();
   }, []);
 
-  async function assignReviewer(applicationId: string, reviewerName: string) {
+  async function assignReviewer(applicationId: string, reviewerId: string, reviewerName: string) {
     const tokenString = localStorage.getItem("token");
     const token = tokenString ? JSON.parse(tokenString)?.access : null;
 
@@ -126,16 +117,17 @@ export default function ApplicationsTable() {
     try {
       await axios.patch(
         `https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/${applicationId}/assign/`,
-        { reviewer_name: reviewerName },
+        { reviewer_id: reviewerId },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      // Update UI locally
       setApplications((prevApps) =>
         prevApps.map((app) =>
-          app.id === applicationId ? { ...app, assignedReviewer: reviewerName } : app
+          app.id === applicationId
+            ? { ...app, assignedReviewer: reviewerName }
+            : app
         )
       );
       alert(`Assigned ${reviewerName} to application ${applicationId}`);
@@ -149,8 +141,7 @@ export default function ApplicationsTable() {
   }
 
   if (loading) return <div>Loading applications...</div>;
-  if (error)
-    return <div className="text-red-600 font-semibold">Error: {error}</div>;
+  if (error) return <div className="text-red-600 font-semibold">Error: {error}</div>;
 
   return (
     <div className="bg-white shadow rounded p-6 max-w-3xl w-full">
@@ -183,107 +174,95 @@ export default function ApplicationsTable() {
             </tr>
           )}
 
-          {applications.map(
-            ({
-              id,
-              applicant,
-              slug,
-              submitted,
-              assignedReviewer,
-              status,
-            }) => (
-              <tr key={id} className="border-b border-gray-200 hover:bg-gray-50 relative">
-                <td className="p-3">
-                  <Link href={`/manager/${id}`} className="text-blue-600 hover:underline">
-                    {applicant}
-                  </Link>
-                </td>
-                <td className="p-3">{submitted}</td>
-                <td className="p-3 text-gray-400">
-                  {assignedReviewer || (
-                    <span className="italic text-gray-300">Not Assigned</span>
-                  )}
-                </td>
-                <td className="p-3">
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      status === "Under Review"
-                        ? "bg-yellow-200 text-yellow-800"
-                        : "bg-blue-200 text-blue-800"
-                    }`}
-                  >
-                    {status}
-                  </span>
-                </td>
-                <td className="p-3 relative">
-                  <button
-                    onClick={() =>
-                      setOpenActionsId(openActionsId === id ? null : id)
-                    }
-                    className="text-blue-600 text-sm hover:underline focus:outline-none"
-                  >
-                    Actions ▼
-                  </button>
+          {applications.map(({ id, applicant, submitted, assignedReviewer, status }) => (
+            <tr
+              key={id}
+              className="border-b border-gray-200 hover:bg-gray-50 relative"
+            >
+              <td className="p-3">
+                <Link href={`/manager/${id}`} className="text-blue-600 hover:underline">
+                  {applicant}
+                </Link>
+              </td>
+              <td className="p-3">{submitted}</td>
+              <td className="p-3 text-gray-400">
+                {assignedReviewer || (
+                  <span className="italic text-gray-300">Not Assigned</span>
+                )}
+              </td>
+              <td className="p-3">
+                <span
+                  className={`text-xs px-2 py-1 rounded ${
+                    status === "Under Review"
+                      ? "bg-yellow-200 text-yellow-800"
+                      : "bg-blue-200 text-blue-800"
+                  }`}
+                >
+                  {status}
+                </span>
+              </td>
+              <td className="p-3 relative">
+                <button
+                  onClick={() => setOpenActionsId(openActionsId === id ? null : id)}
+                  className="text-blue-600 text-sm hover:underline focus:outline-none"
+                >
+                  Actions ▼
+                </button>
 
-                  {/* Actions Dropdown */}
-                  {openActionsId === id && (
-                    <div
-                      className="absolute top-full right-0 mt-1 w-44 bg-white shadow-md rounded border border-gray-200 z-10"
-                      onMouseLeave={() => {
-                        setOpenActionsId(null);
-                        setOpenAssignId(null);
-                      }}
+                {openActionsId === id && (
+                  <div
+                    className="absolute top-full right-0 mt-1 w-44 bg-white shadow-md rounded border border-gray-200 z-10"
+                    onMouseLeave={() => {
+                      setOpenActionsId(null);
+                      setOpenAssignId(null);
+                    }}
+                  >
+                    <Link
+                      href={`/manager/${id}`}
+                      className="block px-4 py-2 hover:bg-gray-100 text-left w-full"
                     >
-                      <Link
-                        href={`/manager/${id}`}
-                        className="block px-4 py-2 hover:bg-gray-100 text-left w-full"
+                      View Details
+                    </Link>
+                    <div className="relative group">
+                      <button
+                        className="flex w-full text-left px-4 py-2 hover:bg-gray-100 justify-between items-center"
+                        onClick={() => setOpenAssignId(openAssignId === id ? null : id)}
                       >
-                        View Details
-                      </Link>
-                      <div className="relative group">
-                        <button
-                          className="flex w-full text-left px-4 py-2 hover:bg-gray-100 justify-between items-center"
-                          onClick={() =>
-                            setOpenAssignId(openAssignId === id ? null : id)
-                          }
-                        >
-                          Assign to Reviewer &raquo;
-                        </button>
+                        Assign to Reviewer &raquo;
+                      </button>
 
-                        {/* Assign Dropdown */}
-                        {openAssignId === id && (
-                          <div
-                            className="absolute top-0 left-full mt-0 ml-1 w-48 bg-white shadow-md rounded border border-gray-200 z-20"
-                            onMouseLeave={() => setOpenAssignId(null)}
-                          >
-                            <div className="p-2 border-b text-sm font-semibold">
-                              Select a reviewer
-                            </div>
-                            {Array.isArray(reviewers) && reviewers.length > 0 ? (
-                              reviewers.map((rev) => (
-                                <button
-                                  key={rev.id}
-                                  disabled={assigningId === id}
-                                  onClick={() => assignReviewer(id, rev.name)}
-                                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  {rev.name}
-                                </button>
-                              ))
-                            ) : (
-                              <div className="p-2 text-gray-400 text-sm italic">
-                                No reviewers available
-                              </div>
-                            )}
+                      {openAssignId === id && (
+                        <div
+                          className="absolute top-0 left-full mt-0 ml-1 w-48 bg-white shadow-md rounded border border-gray-200 z-20"
+                          onMouseLeave={() => setOpenAssignId(null)}
+                        >
+                          <div className="p-2 border-b text-sm font-semibold">
+                            Select a reviewer
                           </div>
-                        )}
-                      </div>
+                          {Array.isArray(reviewers) && reviewers.length > 0 ? (
+                            reviewers.map((rev) => (
+                              <button
+                                key={rev.id}
+                                disabled={assigningId === id}
+                                onClick={() => assignReviewer(id, rev.id, rev.full_name)}
+                                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {rev.full_name}
+                              </button>
+                            ))
+                          ) : (
+                            <div className="p-2 text-gray-400 text-sm italic">
+                              No reviewers available
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </td>
-              </tr>
-            )
-          )}
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
