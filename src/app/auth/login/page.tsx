@@ -56,41 +56,36 @@ export default function LoginPage() {
 
     try {
       const resultAction = await dispatch(loginUser(formData));
-
+    
       if (loginUser.fulfilled.match(resultAction)) {
         const { role, access, refresh } = resultAction.payload.data;
 
         dispatch(setTokens({ access, refresh, role }));
-
+        console.log("role> ", role);
         if (!role) {
+          // Show message and DO NOT redirect
           setInfoMessage(
             "Your account has no role assigned yet. Please register or contact support."
           );
-          return;
+          return; // Stop here, no redirect
         }
 
-        // Role-based routing
-        if (role === "admin") {
-          router.push("/admin");
-        } else if (role === "reviewer") {
-          router.push("/reviewer");
-        } else if (role === "manager") {
-          router.push("/manager");
-        } else {
-          router.push("/applicant");
-        }
+        // Redirect based on role - ONLY if role exists
+        if (role === "admin") router.push("/admin");
+        else if (role === "reviewer") router.push("/reviewer");
+        else if (role === "manager") router.push("/manager");
+        else router.push("/applicant");
       } else {
-        // This block rarely runs because errors are handled in catch below
+        // This case rarely runs; show login failure message, no redirect
         setInfoMessage("Login failed. Please try to register first.");
       }
     } catch (err) {
-      // err could be a rejected action with payload string or unknown error
+      // Show error message, no redirect
       let errorMsg = "Login failed. Please try again.";
-      if (typeof err === "string") {
-        errorMsg = err;
-      } else if (err && typeof err === "object" && "message" in err) {
+      if (typeof err === "string") errorMsg = err;
+      else if (err && typeof err === "object" && "message" in err)
         errorMsg = (err as { message: string }).message;
-      }
+
       setInfoMessage(errorMsg);
 
     }
@@ -228,7 +223,7 @@ export default function LoginPage() {
                 disabled={loading}
               >
                 <Image
-                  src="/images/lock.png"
+                  src="/images/logo.png"
                   alt=""
                   width={0}
                   height={0}

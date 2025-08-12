@@ -69,7 +69,7 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
           dispatch(resetAuthState());
 
           // Redirect to login page on refresh token failure
-          window.location.href = "/app/auth/login";
+        //  window.location.href = "../app/auth/login";
 
           return Promise.reject(refreshError);
         }
