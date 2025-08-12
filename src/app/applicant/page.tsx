@@ -11,7 +11,7 @@ import {
   Circle,
   ArrowRight,
 } from "lucide-react";
-import { getReviewDetails } from "@/lib/redux/api/applicantApi";
+import { checkApplicationStatus } from "@/lib/redux/api/applicantApi";
 
 // Inline ApplicationTimeline
 interface TimelineItemProps {
@@ -69,23 +69,33 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
   );
 };
 
+export interface TimelineItemType {
+  status: "completed" | "current" | "pending";
+  title: string;
+  date?: string;
+  description?: string;
+}
+
 export function ApplicationTimeline({
   application_id,
 }: {
   application_id: string;
 }) {
-  const [timelineItems, setTimelineItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [timelineItems, setTimelineItems] = useState<TimelineItemType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchTimeline() {
       try {
-        const response = await getReviewDetails(application_id);
-        // API returns data in response.data
+        const response = await checkApplicationStatus(application_id);
         setTimelineItems(response.data.timeline || []);
-      } catch (err: any) {
-        setError(err?.message || "Failed to fetch timeline");
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Failed to fetch timeline");
+        }
       } finally {
         setLoading(false);
       }
@@ -116,22 +126,32 @@ export function ApplicationTimeline({
   );
 }
 
+export interface ActivityType {
+  type: string;
+  title: string;
+  date?: string;
+}
+
 export function RecentActivityCard({
   application_id,
 }: {
   application_id: string;
 }) {
-  const [activities, setActivities] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<ActivityType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchActivities() {
       try {
-        const response = await getReviewDetails(application_id);
+        const response = await checkApplicationStatus(application_id);
         setActivities(response.data.activities || []);
-      } catch (err: any) {
-        setError(err?.message || "Failed to fetch activities");
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Failed to fetch activities");
+        }
       } finally {
         setLoading(false);
       }
@@ -237,4 +257,7 @@ export default function ApplicantDashboardPage() {
       <Footer />
     </div>
   );
+}
+function getApplicantReviewDetails(application_id: string) {
+  throw new Error("Function not implemented.");
 }

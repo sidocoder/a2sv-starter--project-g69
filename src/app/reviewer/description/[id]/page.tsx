@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+
 import { useParams, useRouter, notFound } from "next/navigation";
 import { store } from "@/store";
 import Link from "next/link";
 
+
 const Description = () => {
   const val = useParams() as { id: string | null };
   const router = useRouter();
+
   type Job = {
     id: string;
     name: string;
@@ -21,9 +24,10 @@ const Description = () => {
     resumeLink: string;
   };
   const [job, setJob] = useState<Job>({
+
     id: "",
     name: "",
-    date: "",
+    Date: "",
     status: "",
     github: "",
     leetcode: "",
@@ -32,9 +36,8 @@ const Description = () => {
     essay2: "",
     resumeLink: "",
   });
+
   const [loading, setLoading] = useState(true);
-
-
 
   const [activityCheckNotes, setActivityCheckNotes] = useState("");
   const [resumeScore, setResumeScore] = useState<number | "">("");
@@ -49,17 +52,70 @@ const Description = () => {
   const [interviewNotes, setInterviewNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [token, setToken] = useState<string | null>(null);
 
+  // Load token from localStorage once on client side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tokenStr = localStorage.getItem("token");
+      if (tokenStr) {
+        const parsed = JSON.parse(tokenStr);
+        setToken(parsed.access);
+      }
+    }
+  }, []);
 
+  // Fetch applicant data once token is ready and val.id is available
+  useEffect(() => {
+    if (!token) return;
 
+    async function fetchJob() {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `https://a2sv-application-platform-backend-team12.onrender.com/reviews/${val.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-  function getTokenFromRedux() {
-    var tokenstr = localStorage.getItem("token");
-    if (!tokenstr) return null;
-    return JSON.parse(tokenstr).access;
-  }
-  var token = getTokenFromRedux();
+        if (!res.ok) throw new Error("Failed to fetch");
 
+        const json = await res.json();
+
+        if (json.success && json.data) {
+          const apiJob = {
+            id: json.data.id,
+            name: json.data.applicant_details.applicant_name,
+            Date: json.data.applicant_details.submitted_at,
+            status: json.data.applicant_details.status,
+            github: "", // if available extend here
+            leetcode: json.data.applicant_details.leetcode_handle,
+            codeforces: json.data.applicant_details.codeforces_handle,
+            essay1: json.data.applicant_details.essay_about_you,
+            essay2: json.data.applicant_details.essay_why_a2sv,
+            resumeLink: json.data.applicant_details.resume_url,
+          };
+          setJob(apiJob);
+        } else {
+          router.push("/not-found");
+        }
+      } catch (err) {
+        if (typeof window !== "undefined") {
+          alert(`There was an error: ${err}`);
+        } else {
+          console.error("❌ Fetch review error:", err);
+        }
+        router.push("/not-found");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchJob();
+  }, [token, val.id, router]);
 
   async function handleSubmit() {
     if (
@@ -109,8 +165,6 @@ const Description = () => {
       setSubmitting(false);
     }
   }
-
-
 
   useEffect(() => {
     async function fetchJob() {
@@ -179,12 +233,17 @@ const Description = () => {
   return (
     <div className="min-h-screen bg-[#F9FAFB] text-[#111827]">
       <div className="w-full h-16 bg-white px-32 flex items-center justify-between border-b">
-        <button className="text-sm text-gray-500 hover:underline">
+        <button
+          onClick={() => router.back()}
+          className="text-sm text-gray-500 hover:underline"
+        >
           &lt; Back to Dashboard
         </button>
         <div className="flex items-center gap-6">
           <span className="text-sm text-gray-800">{job.name}</span>
+
           <Link href="/" className="text-sm text-gray-500 hover:underline">Log Out</Link>
+
         </div>
       </div>
 
@@ -194,7 +253,10 @@ const Description = () => {
 
       <div className="max-w-[1280px] mx-auto px-8 py-10">
         <div className="mb-8">
-          <button className="text-sm text-gray-500 mb-2 hover:underline">
+          <button
+            onClick={() => router.back()}
+            className="text-sm text-gray-500 mb-2 hover:underline"
+          >
             &lt; Back to Dashboard
           </button>
           <h1 className="text-3xl font-semibold">Review: {job.name}</h1>
@@ -208,7 +270,9 @@ const Description = () => {
                 <strong>Name:</strong> {job.name}
               </p>
               <p>
+
                 <strong>Application Date:</strong> {job.date}
+
               </p>
               <p>
                 <strong>Status:</strong> {job.status?.replace("_", " ") ?? ""}
@@ -218,7 +282,6 @@ const Description = () => {
             <div className="mb-4">
               <p className="font-medium mb-1">Coding Profiles</p>
               <div className="flex gap-4">
-                {/* You can expand these with actual URLs if you want */}
                 <a href={job.github || "#"} className="text-blue-600 underline">
                   GitHub
                 </a>
