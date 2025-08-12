@@ -1,3 +1,4 @@
+"use client";
 import Header from "./dashboard/components/header";
 import Footer from "./dashboard/components/footer";
 import { Button } from "@/components/ui/button";
@@ -5,23 +6,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { ArrowRight, CheckCircle, Circle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // Inline WelcomeCard
 function WelcomeCard() {
+  const [hasApplied, setHasApplied] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Simulate fetching application status
+    // Replace with real API call
+    async function fetchStatus() {
+      try {
+        const res = await fetch("/applications/my-status"); // Your API endpoint
+        const data = await res.json();
+        setHasApplied(data.hasApplied);
+      } catch (err) {
+        console.error("Failed to fetch status", err);
+        setHasApplied(false); // fallback
+      }
+    }
+    fetchStatus();
+  }, []);
+
+  if (hasApplied === null) {
+    return <div className="p-6 text-white">Loading...</div>; // Or skeleton loader
+  }
+
   return (
     <div className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-2">G7 November Intake</h2>
       <p className="text-sm mb-6">
-        It's time to submit your application and show us your potential.
+        {hasApplied
+          ? "You have already applied. Check your application status."
+          : "It's time to submit your application and show us your potential."}
       </p>
-      <Link href="/applicant/application/dashboard">
+      <Link href={hasApplied ? "/applicant" : "/applicant/application/init"}>
         <Button className="bg-white text-purple-700 hover:bg-gray-100">
-          Start Application
+          {hasApplied ? "View Application Status" : "Start Application"}
         </Button>
       </Link>
     </div>
   );
 }
+
+// export default WelcomeCard; // Removed to avoid multiple default exports
 
 // Inline ProfileCompletionCard
 function ProfileCompletionCard() {

@@ -31,7 +31,10 @@ export default function Header() {
           Your Profile
         </Link>
         <span className="text-gray-700">Applicant Name</span>
-        <Link href="#" className="text-gray-600 hover:text-gray-900">
+        <Link
+          href="../../auth/login"
+          className="text-gray-600 hover:text-gray-900"
+        >
           Logout
         </Link>
       </div>

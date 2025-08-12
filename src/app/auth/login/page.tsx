@@ -4,11 +4,10 @@ import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
 import { useSelector } from "react-redux";
-import { loginUser,setTokens } from "../../../store/authSlice";
+import { loginUser, setTokens } from "../../../store/authSlice";
 import { RootState } from "../../../store";
 import { useAppDispatch } from "@/store/hook";
 import { useRouter } from "next/navigation";
-
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,7 +29,7 @@ export default function LoginPage() {
     setErrors({ ...errors, [e.target.name]: "" }); // Clear error on change
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let valid = true;
     const newErrors = {
@@ -51,13 +50,13 @@ export default function LoginPage() {
 
     if (valid) {
       const resultAction = await dispatch(loginUser(formData));
-    
+
       if (loginUser.fulfilled.match(resultAction)) {
         const { role, access, refresh } = resultAction.payload.data;
-    
+
         // Store token in redux/localStorage via setTokens if needed
         dispatch(setTokens({ access, refresh, role }));
-    
+
         // Redirect based on role
         if (role === "admin") {
           router.push("../../admin");
@@ -66,13 +65,12 @@ export default function LoginPage() {
         } else if (role === "manager") {
           router.push("../../manager");
         } else {
-          router.push("../../applicant");
+          router.push("../../applicant/application");
         }
       } else {
         console.error("Login failed:", resultAction.payload);
       }
     }
-    
   };
 
   return (
@@ -167,12 +165,19 @@ export default function LoginPage() {
                 <input type="checkbox" className="mr-2" />
                 Remember me
               </label>
-              <a href="./forgot_password" className="text-sm text-indigo-600 hover:underline">
+              <a
+                href="./forgot_password"
+                className="text-sm text-indigo-600 hover:underline"
+              >
                 Forgot your password?
               </a>
             </div>
             <div>
-              <button type="submit" className={styles.submit} disabled={loading}>
+              <button
+                type="submit"
+                className={styles.submit}
+                disabled={loading}
+              >
                 <Image
                   src="/images/lock.png"
                   alt=""
