@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
-import { useSelector } from "react-redux";
 import { loginUser, setTokens } from "../../../store/authSlice";
 import { RootState } from "../../../store";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
