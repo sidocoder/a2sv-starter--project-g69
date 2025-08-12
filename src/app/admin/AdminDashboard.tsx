@@ -95,7 +95,7 @@ const AdminDashboard: React.FC = () => {
             <p className="text-3xl font-bold">{totalUsers}</p>
             </div>
             <div className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-400 text-white p-4 shadow-2xl">
-            <p className="text-sm">Total Applicants (67)</p>
+            <p className="text-sm">Total Applicants</p>
             <p className="text-3xl font-bold">{totalApplicants}</p>
             </div>
             <div className="rounded-xl bg-gradient-to-r from-orange-600 to-amber-400 text-white p-4 shadow-2xl">
