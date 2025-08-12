@@ -76,14 +76,10 @@ export interface TimelineItemType {
   description?: string;
 }
 
-export function ApplicationTimeline({
-  application_id,
-}: {
-  application_id: string;
-}) {
-  const [timelineItems, setTimelineItems] = useState<TimelineItemType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+function ApplicationTimeline({ application_id }: { application_id: string }) {
+  const [timelineItems, setTimelineItems] = useState<TimelineItemType[]>([]); // ...existing code...
+  const [loading, setLoading] = useState<boolean>(true); // ApplicationTimeline is a component, not a page export. Remove named export.
+  const [error, setError] = useState<string | null>(null); // ...existing code...
 
   useEffect(() => {
     async function fetchTimeline() {
@@ -137,9 +133,9 @@ export function RecentActivityCard({
 }: {
   application_id: string;
 }) {
-  const [activities, setActivities] = useState<ActivityType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [activities, setActivities] = useState<ActivityType[]>([]); // ...existing code...
+  const [loading, setLoading] = useState<boolean>(true); // ...existing code...
+  const [error, setError] = useState<string | null>(null); // ...existing code...
 
   useEffect(() => {
     async function fetchActivities() {
@@ -238,7 +234,8 @@ export default function ApplicantDashboardPage() {
               Your Application Progress
             </h1>
             <p className="text-gray-600 mt-1">
-                You&apos;re on your way! Here&apos;s a summary of your application status.
+              You&apos;re on your way! Here&apos;s a summary of your application
+              status.
             </p>
           </div>
 
