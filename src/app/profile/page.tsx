@@ -8,41 +8,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-
+import { json } from "stream/consumers";
 
 const BASE_URL =
   "https://a2sv-application-platform-backend-team12.onrender.com";
 
-// Your constant refresh token (keep this secure)
 const REFRESH_TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NzAzODEzOS1lZTFiLTQ3ZWEtOWI1OS1hM2NkYzY2ZGJlNmUiLCJleHAiOjE3NTU1MDYwNjcsInR5cGUiOiJyZWZyZXNoIn0.1gHoIOGafTTy2d1hfJcuI0nyo5Lkrbv1DYkyevaF-b4";
 
-let accessToken: string;
 
-async function getNewAccessToken() {
-  const res = await fetch(`${BASE_URL}/auth/token/refresh`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${REFRESH_TOKEN}`,
-    },
-    body: "",
-  });
-
-  const data = await res.json();
-  const newAccessToken = data.access || data.data?.access;
-  if (!newAccessToken) {
-    throw new Error("No access token found in refresh response");
-  }
-  accessToken = newAccessToken;
-  console.log("🔑 New access token obtained from constant refresh token.");
+function gettoken(){
+  let tokenstr = localStorage.getItem("token");
+  if (!tokenstr) return null;
+  return JSON.parse(tokenstr).access;
 }
 
+// async function getNewAccessToken() {
+//   const res = await fetch(`${BASE_URL}/auth/token/refresh`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${REFRESH_TOKEN}`,
+//     },
+//     body: "",
+//   });
+
+//   const data = await res.json();
+//   const newAccessToken = data.access || data.data?.access;
+//   if (!newAccessToken) {
+//     throw new Error("No access token found in refresh response");
+//   }
+//   accessToken = newAccessToken;
+//   console.log("🔑 New access token obtained from constant refresh token.");
+// }
+
 async function fetchProfile() {
+  let accessToken = gettoken();
+  console.log(accessToken);
   try {
-    if (!accessToken) {
-      await getNewAccessToken();
-    }
 
     let res = await fetch(`${BASE_URL}/profile/me`, {
       method: "GET",
@@ -54,7 +57,7 @@ async function fetchProfile() {
 
     if (res.status === 401) {
       console.warn("⚠️ Access token expired. Refreshing...");
-      await getNewAccessToken();
+      accessToken = gettoken();
 
       res = await fetch(`${BASE_URL}/profile/me`, {
         method: "GET",
@@ -90,6 +93,12 @@ export default function ProfilePage() {
     profile_picture_url?: string;
   } | null>(null);
 
+  const [email, setEmail] = useState("");
+  const [isValidEmail, setIsValidEmail] = useState(true);
+
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -97,14 +106,48 @@ export default function ProfilePage() {
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
 
+  // Validate email format
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Handle email input changes
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setEmail(val);
+    setIsValidEmail(validateEmail(val));
+  };
+
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+
+  // Cleanup preview URL on unmount or when image changes
+  useEffect(() => {
+    return () => {
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
+
   // Fetch profile on mount
   useEffect(() => {
     fetchProfile().then((data) => {
-      if (data) setProfile(data);
+      if (data) {
+        setProfile(data);
+        setEmail(data.email);
+        setPreviewImage(data.profile_picture_url || null);
+      }
     });
   }, []);
 
-  // Live password validation
+  // Password validation effect
   useEffect(() => {
     const errors: string[] = [];
 
@@ -127,29 +170,91 @@ export default function ProfilePage() {
     setPasswordsMatch(confirmNewPassword === newPassword);
   }, [newPassword, confirmNewPassword]);
 
+  async function updateProfile(
+    full_name: string,
+    email: string,
+    imageFile?: File
+  ) {
+    try {
+      let accesstoken = gettoken();
 
-  // live Email validation
-  const [email, setEmail] = React.useState(profile?.email || "");
-  const [emailError, setEmailError] = React.useState("");
+      let body: any;
+      let headers: any;
 
-  // Email validation regex (simple but effective)
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+      if (imageFile) {
+        // Use FormData for file upload
+        body = new FormData();
+        body.append("full_name", full_name);
+        body.append("email", email);
+        body.append("profile_picture", imageFile);
 
-  // Handle email input change with validation
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
+        headers = {
+          Authorization: `Bearer ${accesstoken}`,
+          // DO NOT set Content-Type to multipart/form-data manually; browser will set it.
+        };
+      } else {
+        // JSON body if no image file
+        body = JSON.stringify({ full_name, email });
+        headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accesstoken}`,
+        };
+      }
 
-    if (!validateEmail(value)) {
-      setEmailError("Please enter a valid email address.");
-    } else {
-      setEmailError("");
+      const res = await fetch(`${BASE_URL}/profile/me`, {
+        method: "PUT",
+        headers,
+        body,
+      });
+
+      if (res.status === 401) {
+        accesstoken = gettoken();
+        // Retry
+        return updateProfile(full_name, email, imageFile);
+      }
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Update profile failed: ${errText}`);
+      }
+
+      const data = await res.json();
+      alert(data.message || "Profile updated successfully");
+      return data.data;
+    } catch (error) {
+      alert(`Error updating profile: ${error}`);
     }
-  };
+  }
 
+  async function changePassword(old_password: string, new_password: string) {
+    try {
+      let accesstoken = gettoken();
+
+      const res = await fetch(`${BASE_URL}/profile/me/change-password`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accesstoken}`,
+        },
+        body: JSON.stringify({ old_password, new_password }),
+      });
+
+      if (res.status === 401) {
+        accesstoken = gettoken();
+        return changePassword(old_password, new_password);
+      }
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Change password failed: ${errText}`);
+      }
+
+      const data = await res.json();
+      alert(data.message || "Password changed successfully");
+    } catch (error) {
+      alert(`Error changing password: ${error}`);
+    }
+  }
 
   if (!profile) {
     return (
@@ -158,6 +263,7 @@ export default function ProfilePage() {
       </div>
     );
   }
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -174,16 +280,23 @@ export default function ProfilePage() {
               className="absolute inset-0"
             />
             <div className="absolute -bottom-16 left-8">
-              <Image
-                src={
-                  profile.profile_picture_url ||
-                  "/placeholder.svg?height=120&width=120"
-                }
-                alt="Profile Picture"
-                width={120}
-                height={120}
-                className="rounded-full border-4 border-white shadow-md"
-              />
+              {previewImage ? (
+                <img
+                  src={previewImage}
+                  alt="Profile Picture Preview"
+                  width={120}
+                  height={120}
+                  className="rounded-full border-4 border-white shadow-md object-cover"
+                />
+              ) : (
+                <Image
+                  src="/placeholder.svg?height=120&width=120"
+                  alt="Profile Picture"
+                  width={120}
+                  height={120}
+                  className="rounded-full border-4 border-white shadow-md"
+                />
+              )}
             </div>
           </div>
 
@@ -208,7 +321,12 @@ export default function ProfilePage() {
                   </Label>
                   <Input
                     id="full-name"
-                    defaultValue={profile.full_name}
+                    value={profile.full_name}
+                    onChange={(e) =>
+                      setProfile((prev) =>
+                        prev ? { ...prev, full_name: e.target.value } : prev
+                      )
+                    }
                     className="mt-1 bg-gray-50 border-gray-200"
                   />
                 </div>
@@ -218,8 +336,30 @@ export default function ProfilePage() {
                   </Label>
                   <Input
                     id="email-address"
-                    defaultValue={profile.email}
-                    className="mt-1 bg-gray-50 border-gray-200"
+                    value={email}
+                    onChange={handleEmailChange}
+                    className={`mt-1 border ${
+                      isValidEmail
+                        ? "border-gray-200"
+                        : "border-red-500 border-3"
+                    }`}
+                  />
+                  {!isValidEmail && (
+                    <p className="text-red-600 text-sm mt-1">
+                      Please enter a valid email address.
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="profile-picture" className="text-gray-700">
+                    Profile Picture
+                  </Label>
+                  <input
+                    id="profile-picture"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="mt-1"
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -228,12 +368,29 @@ export default function ProfilePage() {
                   </Label>
                   <Input
                     id="role"
-                    defaultValue={profile.role || "Applicant"}
+                    readOnly
+                    value={profile.role || "Applicant"}
                     className="mt-1 bg-gray-50 border-gray-200"
                   />
                 </div>
+
                 <div className="md:col-span-2 text-right">
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <Button
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                    onClick={async () => {
+                      if (!profile) return;
+                      const updated = await updateProfile(
+                        profile.full_name,
+                        email,
+                        selectedImage || undefined
+                      );
+                      if (updated) {
+                        setProfile(updated);
+                        setPreviewImage(updated.profile_picture_url || null);
+                        setSelectedImage(null);
+                      }
+                    }}
+                  >
                     Save Changes
                   </Button>
                 </div>
@@ -312,9 +469,12 @@ export default function ProfilePage() {
                       !newPassword ||
                       !confirmNewPassword
                     }
-                    onClick={() => {
-                      // Handle password change submit here
-                      alert("Change Password submitted!");
+                    onClick={async () => {
+                      await changePassword(currentPassword, newPassword);
+                      setCurrentPassword("");
+                      setNewPassword("");
+                      setConfirmNewPassword("");
+
                     }}
                   >
                     Change Password
