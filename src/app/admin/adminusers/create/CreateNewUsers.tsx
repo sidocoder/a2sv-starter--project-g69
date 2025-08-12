@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import Nav from '../../components/AdminNavbar';
 import { useRouter } from 'next/navigation';

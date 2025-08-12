@@ -42,12 +42,12 @@ const ApplicationCycles: React.FC = () => {
       }
 
       try {
-        const params = {
-          page: currentPage,
-          limit: itemsPerPage,
-        };
-          // response from the API
-        const response = await axiosInstance.post('/admin/cycles', { params });
+        const response = await axiosInstance.get('/cycles', {
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+          },
+        });
 
         if (response.data?.success) {
           setApplicationCycles(response.data.data?.cycles || []);
@@ -75,6 +75,48 @@ const ApplicationCycles: React.FC = () => {
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  // New: toggle status handler
+  const toggleCycleStatus = async (id: number) => {
+    try {
+      // Find the cycle to toggle
+      const cycle = applicationCycles.find((c) => c.id === id);
+      if (!cycle) return;
+
+      // Optimistically update UI
+      setApplicationCycles((prev) =>
+        prev.map((c) =>
+          c.id === id ? { ...c, is_active: !c.is_active } : c
+        )
+      );
+
+      // Send update to server - assuming PATCH /cycles/:id/status or similar
+      const response = await axiosInstance.patch(`/cycles/${id}`, {
+        is_active: !cycle.is_active,
+      });
+
+
+      if (!response.data?.success) {
+        // If update failed, revert state change
+        setApplicationCycles((prev) =>
+          prev.map((c) =>
+            c.id === id ? { ...c, is_active: cycle.is_active } : c
+          )
+        );
+        alert('Failed to update cycle status.');
+      }
+    } catch (error) {
+      console.error('Error toggling cycle status:', error);
+      alert('An error occurred while toggling status.');
+
+      // Revert UI update on error
+      setApplicationCycles((prev) =>
+        prev.map((c) =>
+          c.id === id ? { ...c, is_active: c.is_active } : c
+        )
+      );
     }
   };
 
@@ -108,6 +150,7 @@ const ApplicationCycles: React.FC = () => {
                   description={cycle.description ?? ''}
                   end_date={cycle.end_date}
                   status={cycle.is_active ? 'Active' : 'Closed'}
+                  onToggleStatus={() => toggleCycleStatus(cycle.id)}
                 />
               ))}
             </div>
