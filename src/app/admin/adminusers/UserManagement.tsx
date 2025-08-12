@@ -87,15 +87,17 @@ const UserManagement = () => {
 
   // Defensive: ensure users is always an array before filter
   const filteredUsers = Array.isArray(users)
-    ? users.filter((user) => {
-        const matchesSearch =
-          user.full_name.toLowerCase().includes(search.toLowerCase()) ||
-          user.email.toLowerCase().includes(search.toLowerCase());
-        const matchesRole =
-          selectedRole === "All Roles" || user.role.toLowerCase() === selectedRole.toLowerCase();
-        return matchesSearch && matchesRole;
-      })
-    : [];
+  ? users.filter((user) => {
+      const matchesSearch =
+        user.full_name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase());
+      const matchesRole =
+        selectedRole === "All Roles" || user.role.toLowerCase() === selectedRole.toLowerCase();
+      return matchesSearch && matchesRole;
+    })
+  : [];
+
+
 
   const totalPages = Math.ceil(totalUsers / usersPerPage);
 

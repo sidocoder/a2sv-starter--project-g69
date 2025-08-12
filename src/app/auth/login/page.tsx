@@ -3,10 +3,14 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
+
+import { useAppSelector } from "@/store/hook";
+
 import { loginUser, setTokens } from "../../../store/authSlice";
-import { RootState } from "../../../store";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { useAppDispatch } from "@/store/hook";
+import { RootState } from "@/store";
 import { useRouter } from "next/navigation";
+
 
 export default function LoginPage() {
   const router = useRouter();
