@@ -52,6 +52,7 @@ const ApplicationCycles: React.FC = () => {
         if (response.data?.success) {
           setApplicationCycles(response.data.data?.cycles || []);
           setTotalCycles(response.data.data?.total_count || 0);
+          console.log('Fetched application cycles:', response.data.data.cycles);
         } else {
           console.error('API call unsuccessful', response.data);
           setApplicationCycles([]);
@@ -93,9 +94,7 @@ const ApplicationCycles: React.FC = () => {
       );
 
       // Send update to server - assuming PATCH /cycles/:id/status or similar
-      const response = await axiosInstance.patch(`/cycles/${id}`, {
-        is_active: !cycle.is_active,
-      });
+      const response = await axiosInstance.patch(`admin/cycles/${id}/activate`);
 
 
       if (!response.data?.success) {
