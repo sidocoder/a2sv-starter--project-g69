@@ -69,7 +69,7 @@ export default function LoginPage() {
         if (role === "admin") router.push("/admin");
         else if (role === "reviewer") router.push("/reviewer");
         else if (role === "manager") router.push("/manager");
-        else router.push("/applicant");
+        else router.push("/applicant/application");
       } else {
         setInfoMessage("Login failed. Please try to register first.");
       }

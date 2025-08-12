@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import ApplicationCard from "./Card/page";
+import ApplicationCard from "./Card/ReviewerCard";
 import { fetch_review } from "./lib/temp";
 
 interface Review {
-  id: number;
-  name: string;
-  Date: string;
+  application_id: number;
+  applicant_name: string;
+  submission_date: string;
   status: string;
 }
 
@@ -28,6 +28,8 @@ const Reviewer = () => {
     async function getData() {
       setLoading(true);
       const temp = await fetch_review(currentPage, itemsPerPage); // ✅ send page, not offset
+      // console.log(temp.reviews[0].status);
+
 
       const filteredData: Review[] =
         filtered === "All"
@@ -35,13 +37,16 @@ const Reviewer = () => {
           : (temp.reviews || []).filter(
               (item: Review) => item.status === filtered
             );
+      console.log(filteredData)
 
       if (sortType === "Alphabetic") {
-  filteredData.sort((a: Review, b: Review) => a.name.localeCompare(b.name));
+
+  filteredData.sort((a: Review, b: Review) => a.applicant_name.localeCompare(b.applicant_name));
+
       } else {
         filteredData.sort(
           (a: Review, b: Review) =>
-            new Date(a.Date).getTime() - new Date(b.Date).getTime()
+            new Date(a.submission_date).getTime() - new Date(b.submission_date).getTime()
         );
       }
 
@@ -134,12 +139,13 @@ const Reviewer = () => {
                 </p>
               ) : (
                 list.map((item, index) => (
+                  
                   <ApplicationCard
                     key={index}
-                    name={item.name}
-                    date={item.Date}
+                    name={item.applicant_name}
+                    date={item.submission_date.split("T")[0]}
                     status={item.status}
-                    id={item.id}
+                    id={item.application_id}
                   />
                 ))
               )}
