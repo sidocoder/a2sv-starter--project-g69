@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "A2SV Starter Project",
-  description: "Your App Description",
+  description: "A2sv application",
 };
 
 export default function RootLayout({

@@ -9,9 +9,9 @@ interface StatusBadgeProps {
 }
 
 const statusColors: Record<StatusType, string> = {
- UnderReview: "bg-yellow-200 text-yellow-800",
-InterviewStage: "bg-green-200 text-green-800",
- Accepted: "bg-red-200 text-red-800",
+  UnderReview: "bg-yellow-200 text-yellow-800",
+  InterviewStage: "bg-green-200 text-green-800",
+  Accepted: "bg-red-200 text-red-800",
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {

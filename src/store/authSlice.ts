@@ -1,9 +1,12 @@
+// src/authSlice.ts
 "use client";
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { createAxiosInstance } from "../utils/axiosInstance";
 import { isAxiosError } from "axios";
-import type { AppDispatch, RootState } from ".";
+import type { AppDispatch, RootState } from "../store";
+
+const API_URL = "/auth";
 
 interface AuthState {
   loading: boolean;
@@ -30,8 +33,6 @@ interface LoginResponse {
   };
   message: string;
 }
-
-const API_URL = "/auth";
 
 export const registerUser = createAsyncThunk<
   { message: string; token?: string },
@@ -172,6 +173,7 @@ const authSlice = createSlice({
           );
           localStorage.setItem("refreshToken", refreshToken);
         } else {
+          console.warn("No valid tokens in payload");
           state.token = null;
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");

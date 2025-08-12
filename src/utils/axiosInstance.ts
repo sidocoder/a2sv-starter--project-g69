@@ -1,27 +1,28 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosRequestHeaders } from "axios";
+// src/utils/axiosInstance.ts
+import axios, { AxiosInstance } from "axios";
 import type { AppDispatch } from "../store";
 import { setTokens, resetAuthState } from "../store/authSlice";
 
 const API_URL = "https://a2sv-application-platform-backend-team12.onrender.com";
 
 export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
-  const axiosInstance = axios.create({ baseURL: API_URL });
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+  });
 
   axiosInstance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
+    (config) => {
       if (typeof window !== "undefined") {
         const tokenString = localStorage.getItem("token");
         if (tokenString) {
           try {
-            const tokenObj: { access: string; refresh: string } = JSON.parse(tokenString);
+            const tokenObj = JSON.parse(tokenString);
             if (tokenObj.access) {
-              if (!config.headers) {
-                config.headers = {} as AxiosRequestHeaders;
-              }
+              config.headers = config.headers || {};
               config.headers.Authorization = `Bearer ${tokenObj.access}`;
             }
           } catch {
-            // Ignore parse errors
+            // ignore parse errors
           }
         }
       }
@@ -33,8 +34,7 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
   axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-
+      const originalRequest = error.config;
       if (
         error.response?.status === 401 &&
         !originalRequest._retry &&
@@ -45,7 +45,7 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
           const tokenString = localStorage.getItem("token");
           if (!tokenString) throw new Error("No token");
 
-          const tokenObj: { access: string; refresh: string } = JSON.parse(tokenString);
+          const tokenObj = JSON.parse(tokenString);
           const refreshToken = tokenObj.refresh;
           const role = tokenObj.role; // keep role from old token
           if (!refreshToken) throw new Error("No refresh token");
@@ -54,19 +54,17 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
             refresh: refreshToken,
           });
 
-          const newAccessToken: string = response.data.data.access;
+          const newAccessToken = response.data.data.access;
           if (!newAccessToken) throw new Error("No new access token");
 
           // update Redux + localStorage, keep role
           dispatch(setTokens({ access: newAccessToken, refresh: refreshToken, role }));
 
-          if (!originalRequest.headers) {
-            originalRequest.headers = {} as AxiosRequestHeaders;
-          }
+          // update header and retry
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
           return axiosInstance(originalRequest);
         } catch (refreshError) {
+          // clear tokens on failure
           localStorage.removeItem("token");
           dispatch(resetAuthState());
 
@@ -78,7 +76,6 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
           return Promise.reject(refreshError);
         }
       }
-
       return Promise.reject(error);
     }
   );
