@@ -3,14 +3,14 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
-
+import { useSelector } from "react-redux";
+import { loginUser, setTokens } from "../../../store/authSlice";
+import { RootState } from "../../../store";
 import { useAppSelector } from "@/store/hook";
 
-import { loginUser, setTokens } from "../../../store/authSlice";
 import { useAppDispatch } from "@/store/hook";
 import { RootState } from "@/store";
 import { useRouter } from "next/navigation";
-
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,15 +48,23 @@ export default function LoginPage() {
 
     try {
       const resultAction = await dispatch(loginUser(formData));
+
       if (loginUser.fulfilled.match(resultAction)) {
         const { role, access, refresh } = resultAction.payload.data;
+
+        // Store token in redux/localStorage via setTokens if needed
         dispatch(setTokens({ access, refresh, role }));
 
-        if (!role) {
-          setInfoMessage(
-            "Your account has no role assigned yet. Please register or contact support."
-          );
-          return;
+        // Redirect based on role
+        if (role === "admin") {
+          router.push("../../admin");
+        } else if (role === "reviewer") {
+          router.push("../../reviewer");
+        } else if (role === "manager") {
+          router.push("../../manager");
+        } else {
+          router.push("../../applicant/application");
+
         }
 
         // Redirect based on role
@@ -202,7 +210,11 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <button type="submit" className={styles.submit} disabled={loading}>
+              <button
+                type="submit"
+                className={styles.submit}
+                disabled={loading}
+              >
                 <Image
                   src="/images/logo.png"
                   alt=""
