@@ -9,7 +9,6 @@ import Footer from "../dashboard/components/footer";
 import { useState } from "react";
 import { startApplication } from "@/lib/redux/api/applicantApi";
 import { redirect } from "next/navigation";
-import { error } from "console";
 
 interface StepProps {
   stepNumber: number;
@@ -39,7 +38,15 @@ const Step: React.FC<StepProps> = ({ stepNumber, title, isActive }) => (
 const ApplicationInitPage = () => {
   const titles = ["Personal Info", "Coding Profiles", "Essays & Resume"];
 
-  const fields = [
+  interface FieldType {
+    label: string;
+    name: string;
+    placeholder: string;
+    width: "1/2" | "full";
+    type: "input" | "textarea" | "file";
+  }
+
+  const fields: FieldType[][] = [
     [
       {
         label: "ID Number",
@@ -170,7 +177,15 @@ const ApplicationInitPage = () => {
 
   const [step, setStep] = useState(0);
 
-  const renderField = (field: any, idx: number) => {
+  interface FieldType {
+    label: string;
+    name: string;
+    placeholder: string;
+    width: "1/2" | "full";
+    type: "input" | "textarea" | "file";
+  }
+
+  const renderField = (field: FieldType, idx: number) => {
     const colSpan = field.width === "full" ? "md:col-span-2" : "md:col-span-1";
     return (
       <div key={idx} className={colSpan}>
@@ -180,7 +195,7 @@ const ApplicationInitPage = () => {
             name={field.name}
             placeholder={field.placeholder}
             className="mt-1"
-            value={(form as any)[field.name] || ""}
+            value={(form[field.name as keyof typeof form] as string) || ""}
             onChange={handleChange}
           />
         )}
@@ -190,7 +205,7 @@ const ApplicationInitPage = () => {
             placeholder={field.placeholder}
             className="mt-1 border rounded w-full p-2"
             rows={5}
-            value={(form as any)[field.name] || ""}
+            value={(form[field.name as keyof typeof form] as string) || ""}
             onChange={handleChange}
           />
         )}
@@ -266,7 +281,7 @@ const ApplicationInitPage = () => {
                 </Button>
                 {errorMsg && (
                   <div className="text-red-600 mt-2 text-center">
-                    {errorMsg}
+                    {errorMsg && errorMsg.replace("Here's", "Here&apos;s")}
                   </div>
                 )}
               </div>
