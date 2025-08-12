@@ -7,9 +7,7 @@ import { useSelector } from "react-redux";
 import { loginUser, setTokens } from "../../../store/authSlice";
 import { RootState } from "../../../store";
 import { useAppSelector } from "@/store/hook";
-
 import { useAppDispatch } from "@/store/hook";
-import { RootState } from "@/store";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
