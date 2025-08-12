@@ -20,7 +20,7 @@ export default function ApplicationCard({
       : status === "pending_review"
       ? "Continue Review"
       : "View Detail";
-  var button_color =
+  const button_color =
     text === "View Detail"
       ? "bg-[#FFFFFF] text-[#374151] "
       : "bg-[#4F46E5] text-white";

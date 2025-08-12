@@ -27,7 +27,7 @@ const Description = () => {
 
     id: "",
     name: "",
-    Date: "",
+    date: "",
     status: "",
     github: "",
     leetcode: "",
@@ -89,7 +89,7 @@ const Description = () => {
           const apiJob = {
             id: json.data.id,
             name: json.data.applicant_details.applicant_name,
-            Date: json.data.applicant_details.submitted_at,
+            date: json.data.applicant_details.submitted_at,
             status: json.data.applicant_details.status,
             github: "", // if available extend here
             leetcode: json.data.applicant_details.leetcode_handle,
