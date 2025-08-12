@@ -1,12 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next";
-import ProviderWrapper from "./ProviderWrapper";
-<<<<<<< HEAD
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "A2SV Starter Project",
-  description: "A2sv application",
-=======
+import ProviderWrapper from "./ProvdierWrapper";
 import AuthGuard from "./AuthGuard";
 
 
@@ -23,7 +19,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "A2SV Application",
   description: "A2SV application for managing users and admin tasks",
->>>>>>> 15c7c73c1960e832199ff4c35a46c5cb93482e94
 };
 
 export default function RootLayout({
@@ -31,12 +26,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-<<<<<<< HEAD
-  return (
-    <html lang="en">
-      <body>
-        <ProviderWrapper>{children}</ProviderWrapper>
-=======
 
   const bodyClassName = `${geistSans.variable} ${geistMono.variable}`;
 
@@ -46,7 +35,6 @@ export default function RootLayout({
         <ProviderWrapper>
           <AuthGuard>{children}</AuthGuard>
         </ProviderWrapper>
->>>>>>> 15c7c73c1960e832199ff4c35a46c5cb93482e94
       </body>
     </html>
   );
