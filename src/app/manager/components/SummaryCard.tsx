@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
 import React from "react";
 
 interface SummaryCardProps {
   title: string;
   value: number | string;
-  icon?: React.ReactNode;
   className?: string;
 }
 
@@ -16,9 +15,10 @@ export default function SummaryCard({
 }: SummaryCardProps) {
   return (
     <div
-      className={`bg-white rounded-lg  p-6 flex items-center space-x-4 border border-gray-200 ${className}`}
+      className={`bg-white rounded-lg p-6 flex items-center space-x-4 border border-gray-200 ${className}`}
       style={{
-        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3)",
+        boxShadow:
+          "0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3)",
       }}
     >
       <div>
