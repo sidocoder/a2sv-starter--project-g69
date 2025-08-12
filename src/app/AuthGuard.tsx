@@ -16,16 +16,17 @@ const publicPaths = ["/", "/auth/login", "/auth/register", "/about"]; // add you
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? ""; // Fallback to empty string if null
 
   useEffect(() => {
+    if (!pathname) return; // No path yet, skip
+
     // Skip token check on public pages
     if (publicPaths.includes(pathname)) return;
 
     const tokenString = localStorage.getItem("token");
 
     if (!tokenString) {
-      // No token and on protected route: redirect to login
       router.push("/auth/login");
       return;
     }
@@ -35,11 +36,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     if (isTokenExpired(access)) {
       if (!refresh || isTokenExpired(refresh)) {
-        // Both tokens expired → logout and redirect
         localStorage.removeItem("token");
         router.push("/auth/login");
-      } 
-      // else: refresh token valid → do nothing here, silent refresh handled elsewhere
+      }
     }
   }, [pathname, router]);
 
