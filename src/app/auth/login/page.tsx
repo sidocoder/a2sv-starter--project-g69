@@ -3,33 +3,31 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
-import { useAppSelector, useAppDispatch } from "../../../store/hook";
+import { useSelector } from "react-redux";
 import { loginUser, setTokens } from "../../../store/authSlice";
+import { RootState } from "../../../store";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state: RootState) => state.auth);
 
-  const { loading, error } = useAppSelector((state) => state.auth);
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear error on change
+    setErrors({ ...errors, [e.target.name]: "" });
+    setInfoMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setInfoMessage(null);
+
     let valid = true;
     const newErrors = { email: "", password: "" };
 
@@ -45,32 +43,54 @@ export default function LoginPage() {
 
     if (!valid) return;
 
-    // Dispatch loginUser thunk
-    const resultAction = await dispatch(loginUser(formData));
+    try {
+      const resultAction = await dispatch(loginUser(formData));
+      if (loginUser.fulfilled.match(resultAction)) {
+        const { role, access, refresh } = resultAction.payload.data;
+        dispatch(setTokens({ access, refresh, role }));
 
-    if (loginUser.fulfilled.match(resultAction)) {
-      const { access, refresh, role } = resultAction.payload.data;
+        if (!role) {
+          setInfoMessage(
+            "Your account has no role assigned yet. Please register or contact support."
+          );
+          return;
+        }
 
-      // Store tokens using setTokens action (updates redux and localStorage)
-      dispatch(setTokens({ access, refresh, role }));
-
-      // Confirm tokens stored (debug)
-      console.log("Tokens saved:", localStorage.getItem("token"));
-
-      // Redirect based on role
-      if (role === "admin") {
-        router.push("/admin");
-      } else if (role === "reviewer") {
-        router.push("/reviewer");
-      } else if (role === "manager") {
-        router.push("/manager");
+        // Redirect based on role
+        if (role === "admin") router.push("/admin");
+        else if (role === "reviewer") router.push("/reviewer");
+        else if (role === "manager") router.push("/manager");
+        else router.push("/applicant");
       } else {
-        router.push("/applicant");
+        setInfoMessage("Login failed. Please try to register first.");
       }
-    } else {
-      console.error("Login failed:", resultAction.payload);
+    } catch (err) {
+      let errorMsg = "Login failed. Please try again.";
+      if (typeof err === "string") errorMsg = err;
+      else if (err && typeof err === "object" && "message" in err)
+        errorMsg = (err as { message: string }).message;
+
+      setInfoMessage(errorMsg);
     }
   };
+
+  function getErrorMessage(err: unknown): string {
+    if (!err) return "";
+    if (typeof err === "string") return err;
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "message" in err &&
+      typeof (err as { message?: unknown }).message === "string"
+    ) {
+      return (err as { message: string }).message;
+    }
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -139,8 +159,11 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.email}
                 onChange={handleChange}
+                autoComplete="email"
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -155,6 +178,7 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="current-password"
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -166,7 +190,10 @@ export default function LoginPage() {
                 <input type="checkbox" className="mr-2" />
                 Remember me
               </label>
-              <a href="./forgot_password" className="text-sm text-indigo-600 hover:underline">
+              <a
+                href="./forgot_password"
+                className="text-sm text-indigo-600 hover:underline"
+              >
                 Forgot your password?
               </a>
             </div>
@@ -174,7 +201,7 @@ export default function LoginPage() {
             <div>
               <button type="submit" className={styles.submit} disabled={loading}>
                 <Image
-                  src="/images/lock.png"
+                  src="/images/logo.png"
                   alt=""
                   width={0}
                   height={0}
@@ -185,14 +212,21 @@ export default function LoginPage() {
                 {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
+            {error && (
+              <p className="text-red-500 text-sm mt-2">{getErrorMessage(error)}</p>
+            )}
+
+            {infoMessage && (
+              <p className="text-yellow-600 text-sm mt-2">{infoMessage}</p>
+            )}
           </form>
         </div>
       </main>
 
       {/* Footer */}
       <footer className={styles.footer}>
-        {/* footer content omitted for brevity */}
+        {/* Your footer content here */}
       </footer>
     </div>
   );
