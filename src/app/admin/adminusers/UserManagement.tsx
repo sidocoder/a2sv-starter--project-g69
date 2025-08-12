@@ -45,7 +45,7 @@ const UserManagement = () => {
       }
 
       try {
-        const params: any = {
+        const params: Record<string, string | number> = {
           page: currentPage,
           limit: usersPerPage,
         };

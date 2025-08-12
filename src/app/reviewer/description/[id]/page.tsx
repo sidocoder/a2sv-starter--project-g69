@@ -1,13 +1,30 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+
+import { useParams, useRouter, notFound } from "next/navigation";
+import { store } from "@/store";
+import Link from "next/link";
+
 
 const Description = () => {
-  const val = useParams();
+  const val = useParams() as { id: string | null };
   const router = useRouter();
 
-  const [job, setJob] = useState<any>({
+  type Job = {
+    id: string;
+    name: string;
+    date: string;
+    status: string;
+    github: string;
+    leetcode: string;
+    codeforces: string;
+    essay1: string;
+    essay2: string;
+    resumeLink: string;
+  };
+  const [job, setJob] = useState<Job>({
+
     id: "",
     name: "",
     Date: "",
@@ -149,6 +166,54 @@ const Description = () => {
     }
   }
 
+  useEffect(() => {
+    async function fetchJob() {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `https://a2sv-application-platform-backend-team12.onrender.com/reviews/${val.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch");
+
+        const json = await res.json();
+
+        if (json.success && json.data) {
+          // Map API response shape to your job object shape used in UI:
+          const apiJob = {
+            id: json.data.id,
+            name: json.data.applicant_details.applicant_name,
+            date: json.data.applicant_details.submitted_at,
+            status: json.data.applicant_details.status,
+            github: "", // Add if available or extend your UI to use these fields
+            leetcode: json.data.applicant_details.leetcode_handle,
+            codeforces: json.data.applicant_details.codeforces_handle,
+            essay1: json.data.applicant_details.essay_about_you,
+            essay2: json.data.applicant_details.essay_why_a2sv,
+            resumeLink: json.data.applicant_details.resume_url,
+          };
+          setJob(apiJob);
+        }
+      } catch (err) {
+        if (typeof window !== "undefined") {
+          alert(`There was an error: ${err}`);
+        } else {
+          console.error("❌ Fetch review error:", err);
+        }
+        router.push("/not-found");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchJob();
+  }, [val.id]);
+
   if (loading) {
     return (
       <div className="p-10 text-center text-gray-500">
@@ -176,9 +241,9 @@ const Description = () => {
         </button>
         <div className="flex items-center gap-6">
           <span className="text-sm text-gray-800">{job.name}</span>
-          <a href="/" className="text-sm text-gray-500 hover:underline">
-            Log Out
-          </a>
+
+          <Link href="/" className="text-sm text-gray-500 hover:underline">Log Out</Link>
+
         </div>
       </div>
 
@@ -205,7 +270,9 @@ const Description = () => {
                 <strong>Name:</strong> {job.name}
               </p>
               <p>
-                <strong>Application Date:</strong> {job.Date.split("T")[0]}
+
+                <strong>Application Date:</strong> {job.date}
+
               </p>
               <p>
                 <strong>Status:</strong> {job.status?.replace("_", " ") ?? ""}
@@ -292,7 +359,7 @@ const Description = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Essay "About You" Score
+                  Essay &quot;About You&quot; Score
                 </label>
                 <input
                   type="number"
@@ -306,7 +373,7 @@ const Description = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Essay "Why A2SV" Score
+                  Essay &quot;Why A2SV&quot; Score
                 </label>
                 <input
                   type="number"

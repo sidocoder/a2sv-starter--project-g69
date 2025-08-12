@@ -47,11 +47,15 @@ const CreateNewUsers = () => {
       } else {
         console.error('Failed to create user:', res.data);
       }
-    } catch (error: any) {
-      if (error.response) {
+    } catch (error) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        // @ts-expect-error: error.response is expected from Axios
         console.error('Error creating user:', error.response.data);
-      } else {
+      } else if (error && typeof error === 'object' && 'message' in error) {
+
         console.error('Error creating user:', error.message);
+      } else {
+        console.error('Error creating user:', error);
       }
     }
   };

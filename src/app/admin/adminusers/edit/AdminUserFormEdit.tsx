@@ -8,7 +8,8 @@ import { createAxiosInstance } from '../../../../utils/axiosInstance';
 
 const EditUserPage = () => {
   // Get user ID from URL params and initialize router and redux dispatch
-  const { id } = useParams();
+  const params = useParams<{ id: string }>();
+  const id = params?.id ?? '';
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -94,7 +95,7 @@ const EditUserPage = () => {
       <div className="max-w-4xl mx-auto mt-10 p-8 bg-white shadow-md rounded-lg">
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-1">Edit User:</h1>
-          <p className="text-gray-500">Update the user's details and role.</p>
+          <p className="text-gray-500">Update the user&apos;s details and role.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

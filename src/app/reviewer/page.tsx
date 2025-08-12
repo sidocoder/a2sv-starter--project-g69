@@ -31,21 +31,21 @@ const Reviewer = () => {
       // console.log(temp.reviews[0].status);
 
 
-      let filteredData =
+      const filteredData: Review[] =
         filtered === "All"
           ? temp.reviews || []
           : (temp.reviews || []).filter(
-              (item: any) => item.status === filtered
+              (item: Review) => item.status === filtered
             );
       console.log(filteredData)
 
       if (sortType === "Alphabetic") {
-        filteredData.sort((a: any, b: any) =>
-          a.applicant_name.localeCompare(b.applicant_name)
-        );
+
+  filteredData.sort((a: Review, b: Review) => a.name.localeCompare(b.name));
+
       } else {
         filteredData.sort(
-          (a: any, b: any) =>
+          (a: Review, b: Review) =>
             new Date(a.Date).getTime() - new Date(b.Date).getTime()
         );
       }
@@ -104,7 +104,7 @@ const Reviewer = () => {
                 {["All", "Under_Review", "Complete"].map((status) => (
                   <button
                     key={status}
-                    onClick={() => setFilter(status as any)}
+                    onClick={() => setFilter(status as "All" | "Complete" | "Under_Review")}
                     className={`px-4 py-1 rounded ${
                       filtered === status
                         ? "bg-indigo-600 text-white"

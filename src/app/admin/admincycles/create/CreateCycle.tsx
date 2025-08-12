@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '../../../../store/hook';
 import { createAxiosInstance } from '../../../../utils/axiosInstance';
+import { Axios, AxiosError } from 'axios';
 
 const CreateCycle = () => {
   const router = useRouter();
@@ -60,11 +61,14 @@ const CreateCycle = () => {
       } else {
         console.error('Failed to create cycle:', res.data);
       }
-    } catch (error: any) {
-      if (error.response) {
+  } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        // @ts-expect-error: error may be AxiosError
         console.error('Error creating cycle:', error.response.data);
-      } else {
+      } else if (error instanceof Error) {
         console.error('Error creating cycle:', error.message);
+      } else {
+        console.error('Error creating cycle:', error);
       }
     }
   };
