@@ -57,7 +57,7 @@ export const submitApplicationThunk = createAsyncThunk(
 );
 
 interface ApplicationState {
-  data: any;
+  data: Record<string, unknown> | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
