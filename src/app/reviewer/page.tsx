@@ -5,9 +5,9 @@ import ApplicationCard from "./Card/page";
 import { fetch_review } from "./lib/temp";
 
 interface Review {
-  id: number;
-  name: string;
-  Date: string;
+  application_id: number;
+  applicant_name: string;
+  submission_date: string;
   status: string;
 }
 
@@ -28,6 +28,8 @@ const Reviewer = () => {
     async function getData() {
       setLoading(true);
       const temp = await fetch_review(currentPage, itemsPerPage); // ✅ send page, not offset
+      // console.log(temp.reviews[0].status);
+
 
       let filteredData =
         filtered === "All"
@@ -35,9 +37,12 @@ const Reviewer = () => {
           : (temp.reviews || []).filter(
               (item: any) => item.status === filtered
             );
+      console.log(filteredData)
 
       if (sortType === "Alphabetic") {
-        filteredData.sort((a: any, b: any) => a.name.localeCompare(b.name));
+        filteredData.sort((a: any, b: any) =>
+          a.applicant_name.localeCompare(b.applicant_name)
+        );
       } else {
         filteredData.sort(
           (a: any, b: any) =>
@@ -134,12 +139,13 @@ const Reviewer = () => {
                 </p>
               ) : (
                 list.map((item, index) => (
+                  
                   <ApplicationCard
                     key={index}
-                    name={item.name}
-                    date={item.Date}
+                    name={item.applicant_name}
+                    date={item.submission_date.split("T")[0]}
                     status={item.status}
-                    id={item.id}
+                    id={item.application_id}
                   />
                 ))
               )}
