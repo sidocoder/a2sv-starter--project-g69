@@ -12,7 +12,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   success: boolean;
-  token: { access: string; refresh: string; role?: string } | null;  // added role
+  token: { access: string; refresh: string; role?: string } | null;  
 }
 
 interface AuthFormData {
@@ -29,7 +29,7 @@ interface LoginResponse {
   data: {
     access: string;
     refresh: string;
-    role: string;  // role included here
+    role: string;  
   };
   message: string;
 }

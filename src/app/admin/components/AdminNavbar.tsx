@@ -8,17 +8,17 @@ const Nav = () => {
   const pathname = usePathname()
 
   const navItems = [
-    {label: 'Dashboard', paths: ['/admin/admindashboard']},
-    {label: 'Users', paths: ['/admin/admindashboard/adminusers','/admin/admindashboard/adminusers/create'],
-      dynamicStartsWith: '/admin/admindashboard/adminusers/edit'},
+    {label: 'Dashboard', paths: ['/admin']},
+    {label: 'Users', paths: ['/admin/adminusers','/admin/adminusers/create'],
+      dynamicStartsWith: '/admin/adminusers/edit'},
 
-    {label: 'Cycles', paths: ['/admin/admindashboard/admincycles', '/admin/admindashboard/admincycles/create'] },
-    {label: 'Analytics', paths: ['/admin/admindashboard/adminanalytics'] } ]
+    {label: 'Cycles', paths: ['/admin/admincycles', '/admin/admincycles/create'] },
+    {label: 'Analytics', paths: ['/admin/adminanalytics'] } ]
 
   const profileItems = [
     { label: 'Your Profile', path: '/profile' },
     { label: 'Admin User', path: '/admin' },
-    { label: 'Logout', path: '/logout' }
+    { label: 'Logout', path: '/' }
   ]
 
   const isActive = (item: any) => {
