@@ -4,11 +4,10 @@ import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
 import { useSelector } from "react-redux";
-import { loginUser,setTokens } from "../../../store/authSlice";
+import { loginUser, setTokens } from "../../../store/authSlice";
 import { RootState } from "../../../store";
 import { useAppDispatch } from "@/store/hook";
 import { useRouter } from "next/navigation";
-
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,13 +24,19 @@ export default function LoginPage() {
     password: "",
   });
 
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear error on change
+    setErrors({ ...errors, [e.target.name]: "" });
+    setInfoMessage(null);
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setInfoMessage(null);
+
     let valid = true;
     const newErrors = {
       email: "",
@@ -49,31 +54,69 @@ export default function LoginPage() {
 
     setErrors(newErrors);
 
-    if (valid) {
+    if (!valid) return;
+
+    try {
       const resultAction = await dispatch(loginUser(formData));
-    
+
       if (loginUser.fulfilled.match(resultAction)) {
         const { role, access, refresh } = resultAction.payload.data;
-    
-        // Store token in redux/localStorage via setTokens if needed
+
         dispatch(setTokens({ access, refresh, role }));
-    
-        // Redirect based on role
+
+        if (!role) {
+          setInfoMessage(
+            "Your account has no role assigned yet. Please register or contact support."
+          );
+          return;
+        }
+
+        // Role-based routing
         if (role === "admin") {
-          router.push("../../admin");
+          router.push("/admin");
         } else if (role === "reviewer") {
-          router.push("../../reviewer");
+          router.push("/reviewer");
         } else if (role === "manager") {
-          router.push("../../manager");
+          router.push("/manager");
         } else {
-          router.push("../../applicant");
+          router.push("/applicant");
         }
       } else {
-        console.error("Login failed:", resultAction.payload);
+        // This block rarely runs because errors are handled in catch below
+        setInfoMessage("Login failed. Please try to register first.");
       }
+    } catch (err) {
+      // err could be a rejected action with payload string or unknown error
+      let errorMsg = "Login failed. Please try again.";
+      if (typeof err === "string") {
+        errorMsg = err;
+      } else if (err && typeof err === "object" && "message" in err) {
+        errorMsg = (err as { message: string }).message;
+      }
+      setInfoMessage(errorMsg);
     }
-    
   };
+
+  // Helper to safely get error message string from error object or string
+  function getErrorMessage(err: unknown): string {
+    if (!err) return "";
+    if (typeof err === "string") return err;
+
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "message" in err &&
+      typeof (err as { message?: unknown }).message === "string"
+    ) {
+      return (err as { message: string }).message;
+    }
+
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -104,6 +147,7 @@ export default function LoginPage() {
           </a>
         </nav>
       </header>
+
       {/* Login Form */}
       <main className={styles.main}>
         <div className={styles.formWrapper}>
@@ -127,6 +171,7 @@ export default function LoginPage() {
               Create a new applicant account
             </a>
           </p>
+
           <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="sr-only">
@@ -140,6 +185,7 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.email}
                 onChange={handleChange}
+                autoComplete="email"
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -157,6 +203,7 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="current-password"
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -167,12 +214,19 @@ export default function LoginPage() {
                 <input type="checkbox" className="mr-2" />
                 Remember me
               </label>
-              <a href="./forgot_password" className="text-sm text-indigo-600 hover:underline">
+              <a
+                href="./forgot_password"
+                className="text-sm text-indigo-600 hover:underline"
+              >
                 Forgot your password?
               </a>
             </div>
             <div>
-              <button type="submit" className={styles.submit} disabled={loading}>
+              <button
+                type="submit"
+                className={styles.submit}
+                disabled={loading}
+              >
                 <Image
                   src="/images/lock.png"
                   alt=""
@@ -185,7 +239,16 @@ export default function LoginPage() {
                 {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
+            {/* Render error message safely */}
+            {error && (
+              <p className="text-red-500 text-sm mt-2">{getErrorMessage(error)}</p>
+            )}
+
+            {/* Show info message */}
+            {infoMessage && (
+              <p className="text-yellow-600 text-sm mt-2">{infoMessage}</p>
+            )}
           </form>
         </div>
       </main>

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ProviderWrapper from "./ProviderWrapper";
+import AuthGuard from "./AuthGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,13 +25,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Make sure the class names are stable strings, no dynamic runtime changes
   const bodyClassName = `${geistSans.variable} ${geistMono.variable}`;
 
   return (
     <html lang="en">
       <body className={bodyClassName}>
-        <ProviderWrapper>{children}</ProviderWrapper>
+        <ProviderWrapper>
+          <AuthGuard>{children}</AuthGuard>
+        </ProviderWrapper>
       </body>
     </html>
   );
