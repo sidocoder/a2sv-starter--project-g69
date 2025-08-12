@@ -3,9 +3,12 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./styles";
-import { useAppSelector, useAppDispatch } from "../../../store/hook";
+import { useAppSelector } from "@/store/hook";
 import { loginUser, setTokens } from "../../../store/authSlice";
+import { useAppDispatch } from "@/store/hook";
+
 import { useRouter } from "next/navigation";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,13 +26,19 @@ export default function LoginPage() {
     password: "",
   });
 
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear error on change
+    setErrors({ ...errors, [e.target.name]: "" });
+    setInfoMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setInfoMessage(null);
+
     let valid = true;
     const newErrors = { email: "", password: "" };
 
@@ -45,32 +54,63 @@ export default function LoginPage() {
 
     if (!valid) return;
 
-    // Dispatch loginUser thunk
-    const resultAction = await dispatch(loginUser(formData));
+    try {
+      const resultAction = await dispatch(loginUser(formData));
+    
+      if (loginUser.fulfilled.match(resultAction)) {
+        const { role, access, refresh } = resultAction.payload.data;
 
-    if (loginUser.fulfilled.match(resultAction)) {
-      const { access, refresh, role } = resultAction.payload.data;
+        dispatch(setTokens({ access, refresh, role }));
+        console.log("role> ", role);
+        if (!role) {
+          // Show message and DO NOT redirect
+          setInfoMessage(
+            "Your account has no role assigned yet. Please register or contact support."
+          );
+          return; // Stop here, no redirect
+        }
 
-      // Store tokens using setTokens action (updates redux and localStorage)
-      dispatch(setTokens({ access, refresh, role }));
-
-      // Confirm tokens stored (debug)
-      console.log("Tokens saved:", localStorage.getItem("token"));
-
-      // Redirect based on role
-      if (role === "admin") {
-        router.push("/admin");
-      } else if (role === "reviewer") {
-        router.push("/reviewer");
-      } else if (role === "manager") {
-        router.push("/manager");
+        // Redirect based on role - ONLY if role exists
+        if (role === "admin") router.push("/admin");
+        else if (role === "reviewer") router.push("/reviewer");
+        else if (role === "manager") router.push("/manager");
+        else router.push("/applicant");
       } else {
-        router.push("/applicant");
+        // This case rarely runs; show login failure message, no redirect
+        setInfoMessage("Login failed. Please try to register first.");
       }
-    } else {
-      console.error("Login failed:", resultAction.payload);
+    } catch (err) {
+      // Show error message, no redirect
+      let errorMsg = "Login failed. Please try again.";
+      if (typeof err === "string") errorMsg = err;
+      else if (err && typeof err === "object" && "message" in err)
+        errorMsg = (err as { message: string }).message;
+
+      setInfoMessage(errorMsg);
+
     }
   };
+
+  // Helper to safely get error message string from error object or string
+  function getErrorMessage(err: unknown): string {
+    if (!err) return "";
+    if (typeof err === "string") return err;
+
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "message" in err &&
+      typeof (err as { message?: unknown }).message === "string"
+    ) {
+      return (err as { message: string }).message;
+    }
+
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return String(err);
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -139,6 +179,7 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.email}
                 onChange={handleChange}
+                autoComplete="email"
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
@@ -155,6 +196,7 @@ export default function LoginPage() {
                 className={styles.input}
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="current-password"
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -166,15 +208,22 @@ export default function LoginPage() {
                 <input type="checkbox" className="mr-2" />
                 Remember me
               </label>
-              <a href="./forgot_password" className="text-sm text-indigo-600 hover:underline">
+              <a
+                href="./forgot_password"
+                className="text-sm text-indigo-600 hover:underline"
+              >
                 Forgot your password?
               </a>
             </div>
 
             <div>
-              <button type="submit" className={styles.submit} disabled={loading}>
+              <button
+                type="submit"
+                className={styles.submit}
+                disabled={loading}
+              >
                 <Image
-                  src="/images/lock.png"
+                  src="/images/logo.png"
                   alt=""
                   width={0}
                   height={0}
@@ -185,7 +234,16 @@ export default function LoginPage() {
                 {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
+            {/* Render error message safely */}
+            {error && (
+              <p className="text-red-500 text-sm mt-2">{getErrorMessage(error)}</p>
+            )}
+
+            {/* Show info message */}
+            {infoMessage && (
+              <p className="text-yellow-600 text-sm mt-2">{infoMessage}</p>
+            )}
           </form>
         </div>
       </main>
