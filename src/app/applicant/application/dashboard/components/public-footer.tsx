@@ -15,7 +15,7 @@ export default function PublicFooter() {
             />
           </div>
           <p className="text-gray-400">
-            Preparing Africa's top tech talent for global opportunities.
+            Preparing Africa&apos;s top tech talent for global opportunities.
           </p>
         </div>
         <div className="space-y-2">

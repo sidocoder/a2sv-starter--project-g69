@@ -139,10 +139,14 @@ const ApplicationInitPage = () => {
     try {
       await startApplication(formData);
       redirect("/applicant");
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        "Failed to submit application. Please try again.";
+    } catch (err: unknown) {
+      let msg = "Failed to submit application. Please try again.";
+      if (typeof err === "object" && err !== null && "response" in err) {
+        const errorObj = err as { response?: { data?: { message?: string } } };
+        if (errorObj.response?.data?.message) {
+          msg = errorObj.response.data.message;
+        }
+      }
       setErrorMsg(msg);
       // Optionally redirect if already submitted
       if (msg.includes("already submitted")) {
