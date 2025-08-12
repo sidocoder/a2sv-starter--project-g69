@@ -21,9 +21,15 @@ const Nav = () => {
     { label: 'Logout', path: '/auth/login' }
   ]
 
-  const isActive = (item: any) => {
+  type NavItem = {
+    label: string;
+    paths: string[];
+    dynamicStartsWith?: string;
+  };
+
+  const isActive = (item: NavItem) => {
     if (item.paths.some((path: string) => pathname === path)) return true
-    if (item.dynamicStartsWith && pathname.startsWith(item.dynamicStartsWith)) return true
+    if (item.dynamicStartsWith && pathname && pathname.startsWith(item.dynamicStartsWith)) return true
     return false
   }
 

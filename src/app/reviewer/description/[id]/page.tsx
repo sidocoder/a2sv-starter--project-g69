@@ -3,11 +3,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter, notFound } from "next/navigation";
 import { store } from "@/store";
+import Link from "next/link";
 
 const Description = () => {
-  const val = useParams();
+  const val = useParams() as { id: string | null };
   const router = useRouter();
-  const [job, setJob] = useState<any>({
+  type Job = {
+    id: string;
+    name: string;
+    date: string;
+    status: string;
+    github: string;
+    leetcode: string;
+    codeforces: string;
+    essay1: string;
+    essay2: string;
+    resumeLink: string;
+  };
+  const [job, setJob] = useState<Job>({
     id: "",
     name: "",
     date: "",
@@ -121,7 +134,7 @@ const Description = () => {
           const apiJob = {
             id: json.data.id,
             name: json.data.applicant_details.applicant_name,
-            Date: json.data.applicant_details.submitted_at,
+            date: json.data.applicant_details.submitted_at,
             status: json.data.applicant_details.status,
             github: "", // Add if available or extend your UI to use these fields
             leetcode: json.data.applicant_details.leetcode_handle,
@@ -171,7 +184,7 @@ const Description = () => {
         </button>
         <div className="flex items-center gap-6">
           <span className="text-sm text-gray-800">{job.name}</span>
-          <a href="/" className="text-sm text-gray-500 hover:underline">Log Out</a>
+          <Link href="/" className="text-sm text-gray-500 hover:underline">Log Out</Link>
         </div>
       </div>
 
@@ -195,7 +208,7 @@ const Description = () => {
                 <strong>Name:</strong> {job.name}
               </p>
               <p>
-                <strong>Application Date:</strong> {job.Date}
+                <strong>Application Date:</strong> {job.date}
               </p>
               <p>
                 <strong>Status:</strong> {job.status?.replace("_", " ") ?? ""}
@@ -283,7 +296,7 @@ const Description = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Essay "About You" Score
+                  Essay &quot;About You&quot; Score
                 </label>
                 <input
                   type="number"
@@ -297,7 +310,7 @@ const Description = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Essay "Why A2SV" Score
+                  Essay &quot;Why A2SV&quot; Score
                 </label>
                 <input
                   type="number"

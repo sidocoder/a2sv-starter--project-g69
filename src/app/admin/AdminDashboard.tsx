@@ -134,7 +134,7 @@ const AdminDashboard: React.FC = () => {
                             <UserPlus className="w-4 h-4" />
                         </div>
                         <div>
-                            <p className="text-sm">New user "Jane R." created.</p>
+                              <p className="text-sm">New user &quot;Jane R.&quot; created.</p>
                             <p className="text-xs text-gray-500">2 hours ago</p>
                         </div>
                         </div>
@@ -145,7 +145,7 @@ const AdminDashboard: React.FC = () => {
                             <Calendar className="w-4 h-4" />
                         </div>
                         <div>
-                            <p className="text-sm">New user "Jane R." created.</p>
+                              <p className="text-sm">New user &quot;Jane R.&quot; created.</p>
                             <p className="text-xs text-gray-500">2 hours ago</p>
                         </div>
                         </div>
