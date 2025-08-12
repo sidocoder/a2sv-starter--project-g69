@@ -1,62 +1,76 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
-import ApplicationCard from '../components/ApplicationCard';
 import Link from 'next/link';
 import Nav from '../components/AdminNavbar';
 import Footer from '../components/AdminFooter';
+import ApplicationCard from '../components/ApplicationCard';
+import { useAppSelector, useAppDispatch } from '../../../store/hook';
+import { createAxiosInstance } from '../../../utils/axiosInstance';
 
 interface ApplicationCycle {
   id: number;
   name: string;
-  description: string;
+  description?: string;
   start_date: string;
   end_date: string;
   is_active: boolean;
   created_at: string;
 }
 
-interface ApiResponse {
-  success: boolean;
-  data: {
-    cycles: ApplicationCycle[];
-    total_count: number;
-    page: number;
-    limit: number;
-  };
-  message: string;
-}
-
 const ApplicationCycles: React.FC = () => {
   const [applicationCycles, setApplicationCycles] = useState<ApplicationCycle[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalCycles, setTotalCycles] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const itemsPerPage = 4;
-  const totalPages = Math.ceil(applicationCycles.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const visibleItems = applicationCycles.slice(startIndex, startIndex + itemsPerPage);
+
+  const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.token?.access ?? null);
+  const axiosInstance = React.useMemo(() => createAxiosInstance(dispatch), [dispatch]);
 
   useEffect(() => {
     const fetchCycles = async () => {
-      try {
-        const response = await fetch(
-          'https://a2sv-application-platform-backend-team12.onrender.com/api/cycles'
-        );
-        if (!response.ok) throw new Error('Failed to fetch data');
+      if (!token) {
+        console.error('No access token found.');
+        setApplicationCycles([]);
+        setTotalCycles(0);
+        setLoading(false);
+        return;
+      }
 
-        const json: ApiResponse = await response.json();
-        setApplicationCycles(json.data.cycles);
+      try {
+        const params = {
+          page: currentPage,
+          limit: itemsPerPage,
+        };
+          // response from the API
+        const response = await axiosInstance.post('/admin/cycles', { params });
+
+        if (response.data?.success) {
+          setApplicationCycles(response.data.data?.cycles || []);
+          setTotalCycles(response.data.data?.total_count || 0);
+        } else {
+          console.error('API call unsuccessful', response.data);
+          setApplicationCycles([]);
+          setTotalCycles(0);
+        }
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching application cycles:', err);
         setError('Something went wrong while fetching application cycles.');
+        setApplicationCycles([]);
+        setTotalCycles(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchCycles();
-  }, []);
+  }, [currentPage, token, axiosInstance]);
+
+  const totalPages = Math.ceil(totalCycles / itemsPerPage);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -76,6 +90,7 @@ const ApplicationCycles: React.FC = () => {
             </button>
           </Link>
         </div>
+
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -85,21 +100,20 @@ const ApplicationCycles: React.FC = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visibleItems.map((cycle) => (
+              {applicationCycles.map((cycle) => (
                 <ApplicationCard
                   key={cycle.id}
                   name={cycle.name}
                   start_date={cycle.start_date}
-                  description={cycle.description}
+                  description={cycle.description ?? ''}
                   end_date={cycle.end_date}
                   status={cycle.is_active ? 'Active' : 'Closed'}
                 />
               ))}
             </div>
             <div className="mt-6 text-sm text-gray-500">
-              Showing {startIndex + 1} to{' '}
-              {Math.min(startIndex + itemsPerPage, applicationCycles.length)} of{' '}
-              {applicationCycles.length} results
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+              {Math.min(currentPage * itemsPerPage, totalCycles)} of {totalCycles} results
             </div>
             <div className="flex justify-center mt-4 space-x-2">
               <button

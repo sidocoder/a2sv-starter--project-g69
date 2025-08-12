@@ -117,10 +117,9 @@ const CreateNewUsers = () => {
               onChange={handleChange}
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="reviewer">Reviewer</option>
-              <option value="admin">Admin</option>
-              <option value="applicant">Applicant</option>
-              <option value="manager">Manager</option>
+              <option value="reviewer">reviewer</option>
+              <option value="admin">admin</option>
+              <option value="manager">manager</option>
             </select>
           </div>
         </div>

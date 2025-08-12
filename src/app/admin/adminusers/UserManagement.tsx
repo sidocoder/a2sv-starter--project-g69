@@ -121,7 +121,7 @@ const UserManagement = () => {
   return (
     <div className="bg-gray-100 min-h-screen">
       <Nav />
-      <div className="p-8 bg-gray-100 min-h-screen font-sans">
+      <div className="p-8 bg-gray-100 min-h-screen font-sans mx-10 px-30">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold">User Management</h1>
