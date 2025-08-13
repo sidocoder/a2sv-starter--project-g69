@@ -25,7 +25,6 @@ export interface TimelineItemType {
   date?: string;
   description?: string;
 }
-
 // export function ApplicationTimeline({
 //   application_id,
 // }: {
@@ -138,6 +137,7 @@ export interface TimelineItemType {
 //   );
 // }
 
+
 // Inline ImportantUpdatesCard
 function ImportantUpdatesCard() {
   return (
@@ -188,7 +188,8 @@ export default function ApplicantDashboardPage() {
               Your Application Progress
             </h1>
             <p className="text-gray-600 mt-1">
-                You&apos;re on your way! Here&apos;s a summary of your application status.
+              You&apos;re on your way! Here&apos;s a summary of your application
+              status.
             </p>
           </div>
 
