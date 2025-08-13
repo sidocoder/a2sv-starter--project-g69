@@ -34,7 +34,8 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-
+      
+      //error handling for 401 Unauthorized 
       if (
         error.response?.status === 401 &&
         !originalRequest._retry &&
@@ -50,7 +51,7 @@ export const createAxiosInstance = (dispatch: AppDispatch): AxiosInstance => {
           const role = tokenObj.role; // keep role from old token
           if (!refreshToken) throw new Error("No refresh token");
 
-          const response = await axios.post(`${API_URL}/auth/token/refresh/`, {
+          const response = await axios.post(`${API_URL}/auth/token/refresh`, {
             refresh: refreshToken,
           });
 
