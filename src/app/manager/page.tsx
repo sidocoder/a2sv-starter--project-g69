@@ -5,6 +5,7 @@ import ApplicationsTable from './components/ApplicationsTable';
 import TeamPerformance from './components/TeamPerformance';
 import Footer from './components/Footer';
 
+
 export default function ManagerDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -18,7 +19,7 @@ export default function ManagerDashboard() {
 
           <div className="flex gap-8 ml-2  mt-8 flex-wrap">
             <div className='mr-43'>
-              <ApplicationsTable />
+          <ApplicationsTable />
             </div>
             <div className='mr-1'>
               <TeamPerformance />
