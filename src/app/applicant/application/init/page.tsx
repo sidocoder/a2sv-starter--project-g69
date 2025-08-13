@@ -150,7 +150,7 @@ const ApplicationInitPage = () => {
       }
 
       const response = await axiosInstance.post(
-        "/applicant/application/start",
+        "/applications",
         formData,
         {
           headers: {
