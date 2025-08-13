@@ -1,38 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+ A2SV Starter Project - G69
 
-## Getting Started
+A modern web application built with Next.js 15, TypeScript, Tailwind CSS, and Redux Toolkit, following best practices for scalability and maintainability.  
+This project uses the App Router for routing, Radix UI for accessible components, and Recharts for interactive data visualization.
 
-First, run the development server:
 
-```bash
+ 📂 Project Structure
+
+src/
+app/  App Router pages & layouts
+components/  Reusable UI components
+store/  Redux store setup & slices
+lib/  Utility functions & API handlers
+styles/  Global styles (Tailwind base)
+public/  Static assets
+
+ 🚀 Features
+
+- Next.js App Router for file-based routing and server components.
+- TypeScript for type safety and better developer experience.
+- Tailwind CSS for utility-first, responsive styling.
+- Redux Toolkit & React-Redux for state management.
+- Radix UI components for accessible UI primitives.
+- Lucide Icons & React Icons for scalable vector icons.
+- Recharts for interactive charts and data visualization.
+- API handling via Axios.
+- Fully configurable via environment variables.
+
+ 🛠️ Tech Stack
+
+- Framework: [Next.js 15](https://nextjs.org/)
+- Language: [TypeScript](https://www.typescriptlang.org/)
+- Styling: [Tailwind CSS](https://tailwindcss.com/)
+- State Management: [Redux Toolkit](https://redux-toolkit.js.org/)
+- UI Components: [Radix UI](https://www.radix-ui.com/), [Lucide Icons](https://lucide.dev/)
+- Data Visualization: [Recharts](https://recharts.org/)
+- HTTP Client: [Axios](https://axios-http.com/)
+ 📦 Installation
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/your-username/a2sv-starter-project-g69.git
+   cd a2sv-starter-project-g69
+Install dependencies
+
+bash
+Copy
+Edit
+npm install
+or
+
+bash
+Copy
+Edit
+yarn install
+Set environment variables
+Create a .env.local file in the project root:
+
+env
+Copy
+Edit
+NEXT_PUBLIC_API_BASE_URL=https://api.example.com
+▶️ Running the Project
+Development
+
+bash
+Copy
+Edit
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Visit: http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🤝 Contributing
+Fork the project
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a feature branch (git checkout -b feature/amazing-feature)
 
-## Learn More
+Commit changes (git commit -m 'Add amazing feature')
 
-To learn more about Next.js, take a look at the following resources:
+Push to the branch (git push origin feature/amazing-feature)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open a Pull Request
 
 
