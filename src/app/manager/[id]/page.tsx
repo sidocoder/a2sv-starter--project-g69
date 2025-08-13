@@ -5,6 +5,12 @@ import Link from "next/link";
 import axios from "axios";
 import { useParams } from "next/navigation";
 
+type Reviewer = {
+  id: string;
+  full_name: string;
+  email: string;
+};
+
 type ApplicationDetail = {
   id: string;
   applicant_name: string;
@@ -63,7 +69,7 @@ export default function ManagerDetailPage() {
           return;
         }
 
-        // 1️⃣ Fetch the application
+        // Fetch application
         const res = await axios.get(
           `https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/${id}/`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -78,23 +84,23 @@ export default function ManagerDetailPage() {
         const applicationRaw = res.data.data.application;
         const reviewRaw = res.data.data.review;
 
-        // 2️⃣ Fetch reviewers
+        // Fetch reviewers
         const reviewersRes = await axios.get(
           `https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/available-reviewers/`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        const reviewers = reviewersRes.data.data.reviewers || [];
-        const reviewer = reviewers.find(r => r.id === reviewRaw?.reviewer_id);
+        const reviewers: Reviewer[] = reviewersRes.data.data.reviewers || [];
+        const reviewer = reviewers.find((r: Reviewer) => r.id === reviewRaw?.reviewer_id);
 
-        // 3️⃣ Map data to our ApplicationDetail type
+        // Map to ApplicationDetail
         const mappedData: ApplicationDetail = {
           id: applicationRaw.id,
           applicant_name: applicationRaw.applicant_name,
           school: applicationRaw.school,
           degree_program: applicationRaw.degree,
           coding_profiles: {
-            github: "", // replace if available
+            github: "", // or add if available
             leetcode: applicationRaw.leetcode_handle || "",
             codeforces: applicationRaw.codeforces_handle || "",
           },
