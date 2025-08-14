@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+
 import {
   CheckCircle,
   Calendar,
@@ -13,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { createAxiosInstance } from "@/utils/axiosInstance";
 
+
 export interface ActivityType {
   type: string;
   title: string;
@@ -20,10 +22,12 @@ export interface ActivityType {
 }
 
 export default function RecentActivityCard({
+
   application_id,
 }: {
   application_id: string;
 }) {
+
   const [activities, setActivities] = useState<ActivityType[]>([]); // ...existing code...
   const [loading, setLoading] = useState<boolean>(true); // ...existing code...
   const [error, setError] = useState<string | null>(null); // ...existing code...
@@ -64,6 +68,7 @@ export default function RecentActivityCard({
       }
     }, [application_id, token, axiosInstance]);
 
+
   if (loading) return <p>Loading activities...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -91,4 +96,6 @@ export default function RecentActivityCard({
       </CardContent>
     </Card>
   );
+
 }
+

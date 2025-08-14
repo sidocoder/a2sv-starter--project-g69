@@ -12,8 +12,10 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { checkApplicationStatus } from "@/lib/redux/api/applicantApi";
+
 import ApplicationTimeline from "./ApplicationTimeline";
 import RecentActivityCard from "./RecentActivityCard";
+
 
 
 // Inline ApplicationTimeline
@@ -136,8 +138,6 @@ export interface TimelineItemType {
 //     </Card>
 //   );
 // }
-
-
 // Inline ImportantUpdatesCard
 function ImportantUpdatesCard() {
   return (
