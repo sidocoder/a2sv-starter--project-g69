@@ -7,51 +7,64 @@ import {
   cancelApplication,
   submitApplication,
 } from "../api/applicantApi";
+import type { AxiosInstance } from "axios";
 
 export const startApplicationThunk = createAsyncThunk(
   "application/start",
-  async (formData: FormData) => {
-    const res = await startApplication(formData);
+  async (
+    { formData, axiosInstance, token }: { formData: FormData; axiosInstance: AxiosInstance; token: string }
+  ) => {
+    const res = await startApplication(axiosInstance, formData, token);
     return res.data;
   }
 );
 
 export const checkStatusThunk = createAsyncThunk(
   "application/status",
-  async (application_id: string) => {
-    const res = await checkApplicationStatus(application_id);
+  async (
+    { axiosInstance, token }: { axiosInstance: AxiosInstance; token: string }
+  ) => {
+    const res = await checkApplicationStatus(axiosInstance, token);
     return res.data;
   }
 );
 
 export const getDataThunk = createAsyncThunk(
   "application/data",
-  async () => {
-    const res = await getApplicationData();
+  async (
+    { application_id, axiosInstance, token }: { application_id: string; axiosInstance: AxiosInstance; token: string }
+  ) => {
+    const res = await getApplicationData(axiosInstance, application_id, token);
     return res.data;
   }
 );
 
 export const editApplicationThunk = createAsyncThunk(
   "application/edit",
-  async (formData: FormData) => {
-    const res = await editApplicationData(formData);
+  async (
+    { formData, axiosInstance, token }: { formData: FormData; axiosInstance: AxiosInstance; token: string }
+  ) => {
+    const res = await editApplicationData(axiosInstance, formData, token);
     return res.data;
   }
 );
 
 export const cancelApplicationThunk = createAsyncThunk(
   "application/cancel",
-  async () => {
-    const res = await cancelApplication();
+  async (
+    { application_id, axiosInstance, token }: { application_id: string; axiosInstance: AxiosInstance; token: string }
+  ) => {
+    const res = await cancelApplication(axiosInstance, application_id, token);
     return res.data;
   }
 );
 
 export const submitApplicationThunk = createAsyncThunk(
   "application/submit",
-  async () => {
-    const res = await submitApplication();
+  async (
+    { application_id, axiosInstance, token }: { application_id: string; axiosInstance: AxiosInstance; token: string }
+  ) => {
+    const res = await submitApplication(axiosInstance, application_id, token);
     return res.data;
   }
 );

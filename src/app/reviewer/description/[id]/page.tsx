@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
-import { useParams, useRouter, notFound } from "next/navigation";
-import { store } from "@/store";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
-
 const Description = () => {
-  const val = useParams() as { id: string | null };
+  const val = useParams<{ id: string }>();
   const router = useRouter();
 
   type Job = {
@@ -24,7 +21,6 @@ const Description = () => {
     resumeLink: string;
   };
   const [job, setJob] = useState<Job>({
-
     id: "",
     name: "",
     date: "",
@@ -65,15 +61,15 @@ const Description = () => {
     }
   }, []);
 
-  // Fetch applicant data once token is ready and val.id is available
+  // Fetch applicant data when token and id are ready
   useEffect(() => {
-    if (!token) return;
+    if (!token || !val?.id) return;
 
     async function fetchJob() {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://a2sv-application-platform-backend-team12.onrender.com/reviews/${val.id}/`,
+          `https://a2sv-application-platform-backend-team12.onrender.com/reviews/${val?.id}/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -89,14 +85,14 @@ const Description = () => {
           const apiJob = {
             id: json.data.id,
             name: json.data.applicant_details.applicant_name,
-            Date: json.data.applicant_details.submitted_at,
-            status: json.data.applicant_details.status,
-            github: "", // if available extend here
-            leetcode: json.data.applicant_details.leetcode_handle,
-            codeforces: json.data.applicant_details.codeforces_handle,
-            essay1: json.data.applicant_details.essay_about_you,
-            essay2: json.data.applicant_details.essay_why_a2sv,
-            resumeLink: json.data.applicant_details.resume_url,
+            date: json.data.applicant_details.submitted_at,
+            status: json.data.applicant_details.status || "",
+            github: json.data.applicant_details.github_handle || "",
+            leetcode: json.data.applicant_details.leetcode_handle || "",
+            codeforces: json.data.applicant_details.codeforces_handle || "",
+            essay1: json.data.applicant_details.essay_about_you || "",
+            essay2: json.data.applicant_details.essay_why_a2sv || "",
+            resumeLink: json.data.applicant_details.resume_url || "",
           };
           setJob(apiJob);
         } else {
@@ -115,7 +111,7 @@ const Description = () => {
     }
 
     fetchJob();
-  }, [token, val.id, router]);
+  }, [token, val?.id, router]);
 
   async function handleSubmit() {
     if (
@@ -132,7 +128,7 @@ const Description = () => {
     setSubmitting(true);
     try {
       const res = await fetch(
-        `https://a2sv-application-platform-backend-team12.onrender.com/reviews/${val.id}`,
+        `https://a2sv-application-platform-backend-team12.onrender.com/reviews/${val?.id}/`,
         {
           method: "PUT",
           headers: {
@@ -166,54 +162,6 @@ const Description = () => {
     }
   }
 
-  useEffect(() => {
-    async function fetchJob() {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `https://a2sv-application-platform-backend-team12.onrender.com/reviews/${val.id}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch");
-
-        const json = await res.json();
-
-        if (json.success && json.data) {
-          // Map API response shape to your job object shape used in UI:
-          const apiJob = {
-            id: json.data.id,
-            name: json.data.applicant_details.applicant_name,
-            date: json.data.applicant_details.submitted_at,
-            status: json.data.applicant_details.status,
-            github: "", // Add if available or extend your UI to use these fields
-            leetcode: json.data.applicant_details.leetcode_handle,
-            codeforces: json.data.applicant_details.codeforces_handle,
-            essay1: json.data.applicant_details.essay_about_you,
-            essay2: json.data.applicant_details.essay_why_a2sv,
-            resumeLink: json.data.applicant_details.resume_url,
-          };
-          setJob(apiJob);
-        }
-      } catch (err) {
-        if (typeof window !== "undefined") {
-          alert(`There was an error: ${err}`);
-        } else {
-          console.error("❌ Fetch review error:", err);
-        }
-        router.push("/not-found");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchJob();
-  }, [val.id]);
-
   if (loading) {
     return (
       <div className="p-10 text-center text-gray-500">
@@ -225,7 +173,7 @@ const Description = () => {
   if (!job) {
     return (
       <div className="p-10 text-center text-red-500">
-        No applicant found with ID: {val.id}
+        No applicant found with ID: {val?.id}
       </div>
     );
   }
@@ -241,9 +189,9 @@ const Description = () => {
         </button>
         <div className="flex items-center gap-6">
           <span className="text-sm text-gray-800">{job.name}</span>
-
-          <Link href="/" className="text-sm text-gray-500 hover:underline">Log Out</Link>
-
+          <Link href="/" className="text-sm text-gray-500 hover:underline">
+            Log Out
+          </Link>
         </div>
       </div>
 
@@ -263,6 +211,7 @@ const Description = () => {
         </div>
 
         <div className="flex gap-8">
+          {/* Left column */}
           <div className="w-2/3 bg-white shadow-md rounded-md p-6">
             <h2 className="text-lg font-semibold mb-4">Applicant Profile</h2>
             <div className="mb-4">
@@ -270,12 +219,11 @@ const Description = () => {
                 <strong>Name:</strong> {job.name}
               </p>
               <p>
-
                 <strong>Application Date:</strong> {job.date}
-
               </p>
               <p>
-                <strong>Status:</strong> {job.status?.replace("_", " ") ?? ""}
+                <strong>Status:</strong>{" "}
+                {job.status ? job.status.replace(/_/g, " ") : ""}
               </p>
             </div>
 
@@ -331,6 +279,7 @@ const Description = () => {
             </div>
           </div>
 
+          {/* Right column */}
           <div className="w-1/3 bg-white shadow-md rounded-md p-6 h-fit">
             <h2 className="text-lg font-semibold mb-4">Evaluation Form</h2>
             <div className="mb-4">

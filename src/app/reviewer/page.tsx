@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import ApplicationCard from "./Card/page";
+import ApplicationCard from "./Card/ReviewerCard";
 import { fetch_review } from "./lib/temp";
 
 interface Review {
@@ -41,12 +41,12 @@ const Reviewer = () => {
 
       if (sortType === "Alphabetic") {
 
-  filteredData.sort((a: Review, b: Review) => a.name.localeCompare(b.name));
+  filteredData.sort((a: Review, b: Review) => a.applicant_name.localeCompare(b.applicant_name));
 
       } else {
         filteredData.sort(
           (a: Review, b: Review) =>
-            new Date(a.Date).getTime() - new Date(b.Date).getTime()
+            new Date(a.submission_date).getTime() - new Date(b.submission_date).getTime()
         );
       }
 

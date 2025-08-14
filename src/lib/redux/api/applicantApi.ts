@@ -1,67 +1,58 @@
-import api from "./axiosInstance";
-import axios from "axios";
 
-// POST - Start Application
-const tokenString = localStorage.getItem("token");
-const token = tokenString ? JSON.parse(tokenString) : null;
-export const startApplication = (formData: FormData) =>
-  api.post("/applications/", formData, {
+import type { AxiosInstance } from "axios";
+
+// All API functions now require axiosInstance and token from the component
+export const startApplication = (axiosInstance: AxiosInstance, formData: FormData, token: string) =>
+  axiosInstance.post("/applications/", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
-      "Authorization": `Bearer ${token?.access ?? ""}`,
+      "Authorization": `Bearer ${token}`,
     },
   });
 
-// GET - Check Application Status
-export const checkApplicationStatus = () =>
-  api.get("/applications/my-status/",
-    {
-      headers: {
-        "Authorization": `Bearer ${token?.access ?? ""}`,
-      }
-}  );
-
-// GET - Get Application Data
-export const getApplicationData = () =>
-  api.get("/applications/:application_id", {
+export const checkApplicationStatus = (axiosInstance: AxiosInstance, token: string) =>
+  axiosInstance.get("/applications/my-status/", {
     headers: {
-      "Authorization": `Bearer ${token?.access ?? ""}`,
-    }
+      "Authorization": `Bearer ${token}`,
+    },
   });
 
-// PUT - Edit Application Data
-export const editApplicationData = (formData: FormData) =>
-  api.put("/applications/my-status", formData, {
-    headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${token?.access ?? ""}` },
-  });
-
-// DELETE - Cancel Application
-export const cancelApplication = () =>
-  api.delete("/applications/:application_id", {
+export const getApplicationData = (axiosInstance: AxiosInstance, application_id: string, token: string) =>
+  axiosInstance.get(`/applications/${application_id}`, {
     headers: {
-      "Authorization": `Bearer ${token?.access ?? ""}`,
-    }
+      "Authorization": `Bearer ${token}`,
+    },
   });
 
-// PATCH - Submit Application
-export const submitApplication = () =>
-  api.patch("/applications/:application_id", {
+export const editApplicationData = (axiosInstance: AxiosInstance, formData: FormData, token: string) =>
+  axiosInstance.put("/applications/my-status", formData, {
     headers: {
-      "Authorization": `Bearer ${token?.access ?? ""}`,
-    }
+      "Content-Type": "multipart/form-data",
+      "Authorization": `Bearer ${token}`,
+    },
   });
 
+export const cancelApplication = (axiosInstance: AxiosInstance, application_id: string, token: string) =>
+  axiosInstance.delete(`/applications/${application_id}`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
 
-export async function getReviewDetails(application_id: string) {
+export const submitApplication = (axiosInstance: AxiosInstance, application_id: string, token: string) =>
+  axiosInstance.patch(`/applications/${application_id}`, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+
+export async function getReviewDetails(axiosInstance: AxiosInstance, application_id: string, token: string) {
   try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/applicant/${application_id}/review-details`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // adjust if your token storage is different
-        },
-      }
-    );
+    const res = await axiosInstance.get(`/applicant/${application_id}/review-details`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
     return res;
   } catch (error) {
     console.error("Error fetching review details:", error);

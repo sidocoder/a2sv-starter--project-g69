@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+
 import {
   CheckCircle,
   Calendar,
@@ -8,6 +11,9 @@ import {
 } from "lucide-react";
 import { checkApplicationStatus } from "@/lib/redux/api/applicantApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAppDispatch, useAppSelector } from "@/store/hook";
+import { createAxiosInstance } from "@/utils/axiosInstance";
+
 
 export interface ActivityType {
   type: string;
@@ -15,37 +21,53 @@ export interface ActivityType {
   date?: string;
 }
 
-export function RecentActivityCard({
+export default function RecentActivityCard({
+
   application_id,
 }: {
   application_id: string;
 }) {
-  const [activities, setActivities] = useState<ActivityType[]>([]); 
-  const [loading, setLoading] = useState<boolean>(true); 
-  const [error, setError] = useState<string | null>(null); 
+
+  const [activities, setActivities] = useState<ActivityType[]>([]); // ...existing code...
+  const [loading, setLoading] = useState<boolean>(true); // ...existing code...
+  const [error, setError] = useState<string | null>(null); // ...existing code...
+
+  const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.token?.access ?? null);
+  const axiosInstance = useMemo(() => createAxiosInstance(dispatch), [dispatch]);
 
   useEffect(() => {
-    async function fetchActivities() {
-      try {
-        const response = await checkApplicationStatus(
-
-
-
-            
-        );
-        setActivities(response.data.activities || []);
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Failed to fetch activities");
+      async function fetchActivities() {
+        if (!token) {
+          setError("User not authenticated");
+          setLoading(false);
+          return;
         }
-      } finally {
-        setLoading(false);
+
+        try {
+          // Assuming your API endpoint for activities looks like this:
+          const response = await axiosInstance.get(`/applications/my-status/`);
+          setActivities(response.data.activities || []);
+          setError(null);
+        } catch (err) {
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError("Failed to fetch activities");
+          }
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-    if (application_id) fetchActivities();
-  }, [application_id]);
+
+      if (application_id && token) {
+        fetchActivities();
+      } else {
+        setLoading(false);
+        if (!token) setError("User not authenticated");
+      }
+    }, [application_id, token, axiosInstance]);
+
 
   if (loading) return <p>Loading activities...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -74,4 +96,6 @@ export function RecentActivityCard({
       </CardContent>
     </Card>
   );
+
 }
+

@@ -8,21 +8,21 @@ const testimonials = [
     title: 'Software Engineer, Google',
     quote:
       '"A2SV completely changed the trajectory of my career. The training is intense, but the community and the opportunities are unparalleled. I’m now at my dream company, and I owe it all to A2SV."',
-    image: '/images/abel.png',
+    image: '/images/testimonials/abel.png',
   },
   {
     name: 'Bethlehem Tadesse',
     title: 'Software Engineer, Amazon',
     quote:
       '"The problem-solving skills I learned at A2SV are invaluable. The mentors push you to be your best, and you’re surrounded by people who are just as passionate as you are."',
-    image: '/images/bethlehem.png',
+    image: '/images/testimonials/bethlehem.png',
   },
   {
     name: 'Caleb Alemayehu',
     title: 'Software Engineer, Palantir',
     quote:
       '"A2SV is more than a bootcamp. It’s a family that supports you long after you’ve graduated. The network you build here is for life."',
-    image: '/images/caleb.png',
+    image: '/images/testimonials/caleb.png',
   },
 ];
 

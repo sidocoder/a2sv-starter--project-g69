@@ -1,14 +1,16 @@
 "use client";
 
+import { useAppSelector, useAppDispatch } from "@/store/hook";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Header from "../dashboard/components/header";
 import Footer from "../dashboard/components/footer";
-import { useState } from "react";
-import { startApplication } from "@/lib/redux/api/applicantApi";
+import { useMemo, useState } from "react";
+// import { startApplication } from "@/lib/redux/api/applicantApi";
 import { redirect } from "next/navigation";
+import { createAxiosInstance } from "@/utils/axiosInstance";
 
 interface StepProps {
   stepNumber: number;
@@ -36,7 +38,11 @@ const Step: React.FC<StepProps> = ({ stepNumber, title, isActive }) => (
 );
 
 const ApplicationInitPage = () => {
+  const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.token?.access ?? null);
+  const axiosInstance = useMemo(() => createAxiosInstance(dispatch), [dispatch]);
   const titles = ["Personal Info", "Coding Profiles", "Essays & Resume"];
+
 
   interface FieldType {
     label: string;
@@ -137,8 +143,28 @@ const ApplicationInitPage = () => {
       formData.append("resume", form.resume);
     }
     try {
-      await startApplication(formData);
-      redirect("/applicant");
+      if (!token) {
+        setErrorMsg("You must be logged in to submit the application.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await axiosInstance.post(
+        "/applicant/application/start",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data?.success) {
+        redirect("/applicant");
+      } else {
+        setErrorMsg(response.data?.message || "Failed to submit application. Please try again.");
+      }
     } catch (err: unknown) {
       let msg = "Failed to submit application. Please try again.";
       if (typeof err === "object" && err !== null && "response" in err) {

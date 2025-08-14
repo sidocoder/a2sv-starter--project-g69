@@ -7,7 +7,7 @@ const REFRESH_TOKEN = "YOUR_REFRESH_TOKEN_HERE"; // move to env in production
 let accessToken: string;
 
 function getTokenFromRedux() {
-  var tokenstr = localStorage.getItem("token");
+  const tokenstr = localStorage.getItem("token");
   if (!tokenstr) return null;
   return JSON.parse(tokenstr).access;
 }
@@ -16,7 +16,7 @@ function getTokenFromRedux() {
 
 export async function fetch_review(page: number, limit: number) {
   try {
-    let token = getTokenFromRedux();
+  let token = getTokenFromRedux();
     console.log(token);
 
     let res = await fetch(
