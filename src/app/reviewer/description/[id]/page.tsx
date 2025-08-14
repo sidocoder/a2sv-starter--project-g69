@@ -27,7 +27,7 @@ const Description = () => {
 
     id: "",
     name: "",
-    Date: "",
+    date: "",
     status: "",
     github: "",
     leetcode: "",

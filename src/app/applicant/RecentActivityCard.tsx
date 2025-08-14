@@ -20,14 +20,19 @@ export function RecentActivityCard({
 }: {
   application_id: string;
 }) {
-  const [activities, setActivities] = useState<ActivityType[]>([]); // ...existing code...
-  const [loading, setLoading] = useState<boolean>(true); // ...existing code...
-  const [error, setError] = useState<string | null>(null); // ...existing code...
+  const [activities, setActivities] = useState<ActivityType[]>([]); 
+  const [loading, setLoading] = useState<boolean>(true); 
+  const [error, setError] = useState<string | null>(null); 
 
   useEffect(() => {
     async function fetchActivities() {
       try {
-        const response = await checkApplicationStatus();
+        const response = await checkApplicationStatus(
+
+
+
+            
+        );
         setActivities(response.data.activities || []);
       } catch (err) {
         if (err instanceof Error) {

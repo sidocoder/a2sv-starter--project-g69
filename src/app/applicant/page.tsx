@@ -78,9 +78,9 @@ export interface TimelineItemType {
 }
 
 function ApplicationTimeline({ application_id }: { application_id: string }) {
-  const [timelineItems, setTimelineItems] = useState<TimelineItemType[]>([]); // ...existing code...
-  const [loading, setLoading] = useState<boolean>(true); // ApplicationTimeline is a component, not a page export. Remove named export.
-  const [error, setError] = useState<string | null>(null); // ...existing code...
+  const [timelineItems, setTimelineItems] = useState<TimelineItemType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchTimeline() {
@@ -122,8 +122,6 @@ function ApplicationTimeline({ application_id }: { application_id: string }) {
     </div>
   );
 }
-
-
 
 // Inline ImportantUpdatesCard
 function ImportantUpdatesCard() {
