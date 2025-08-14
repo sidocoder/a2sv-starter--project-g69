@@ -11,6 +11,16 @@ type Reviewer = {
   email: string;
 };
 
+type ReviewerFeedback = {
+  reviewer_name: string;
+  activity_check: string;
+  resume_score: number;
+  essay_score: number;
+  tech_interview: number;
+  behavioral: number;
+  interviewer_notes: string;
+};
+
 type ApplicationDetail = {
   id: string;
   applicant_name: string;
@@ -26,17 +36,10 @@ type ApplicationDetail = {
     essay2: string;
   };
   resume_url: string;
-  reviewer_feedback?: {
-    reviewer_name: string;
-    activity_check: string;
-    resume_score: number;
-    essay_score: number;
-    tech_interview: number;
-    behavioral: number;
-    interviewer_notes: string;
-  };
+  reviewer_feedback?: ReviewerFeedback;
   assigned_reviewer: string | null;
-  status: string;
+  status: "pending" | "accepted" | "rejected";
+  reviewer_confirmed?: boolean;
 };
 
 export default function ManagerDetailPage() {
@@ -47,6 +50,7 @@ export default function ManagerDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [decisionLoading, setDecisionLoading] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -69,7 +73,6 @@ export default function ManagerDetailPage() {
           return;
         }
 
-        // Fetch application
         const res = await axios.get(
           `https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/${id}/`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -84,23 +87,21 @@ export default function ManagerDetailPage() {
         const applicationRaw = res.data.data.application;
         const reviewRaw = res.data.data.review;
 
-        // Fetch reviewers
         const reviewersRes = await axios.get(
           `https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/available-reviewers/`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        const reviewers: Reviewer[] = reviewersRes.data.data.reviewers || [];
-        const reviewer = reviewers.find((r: Reviewer) => r.id === reviewRaw?.reviewer_id);
+        const reviewers: Reviewer[] = reviewersRes.data.data?.reviewers || [];
+        const reviewer = reviewers.find((r) => r.id === reviewRaw?.reviewer_id);
 
-        // Map to ApplicationDetail
         const mappedData: ApplicationDetail = {
           id: applicationRaw.id,
           applicant_name: applicationRaw.applicant_name,
           school: applicationRaw.school,
           degree_program: applicationRaw.degree,
           coding_profiles: {
-            github: "", // or add if available
+            github: applicationRaw.github_handle || "",
             leetcode: applicationRaw.leetcode_handle || "",
             codeforces: applicationRaw.codeforces_handle || "",
           },
@@ -121,7 +122,8 @@ export default function ManagerDetailPage() {
               }
             : undefined,
           assigned_reviewer: reviewer?.full_name || null,
-          status: applicationRaw.status,
+          status: (applicationRaw.status as "pending" | "accepted" | "rejected") || "pending",
+          reviewer_confirmed: reviewRaw?.confirmed || false,
         };
 
         setData(mappedData);
@@ -137,7 +139,12 @@ export default function ManagerDetailPage() {
   }, [id]);
 
   async function handleDecision(decision: "accept" | "reject") {
-    if (!id) return;
+    if (!id || !data) return;
+
+    if (!data.reviewer_feedback) {
+      alert("Reviewer feedback not completed yet. You cannot make a decision.");
+      return;
+    }
 
     const tokenString = localStorage.getItem("token");
     const token = tokenString ? JSON.parse(tokenString)?.access : null;
@@ -146,20 +153,66 @@ export default function ManagerDetailPage() {
       return;
     }
 
+    const decisionMap = {
+      accept: "accepted",
+      reject: "rejected",
+    } as const;
+
+    const notes = prompt("Enter decision notes for this application:") || "";
+
     setDecisionLoading(true);
     try {
       await axios.patch(
         `https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/${id}/decide/`,
-        { decision },
-        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+        {
+          status: decisionMap[decision],
+          decision_notes: notes,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-      alert(`Application has been ${decision}ed successfully.`);
-      setData(prev => prev ? { ...prev, status: decision } : prev);
-    } catch (err) {
+
+      setData((prev) =>
+        prev ? { ...prev, status: decisionMap[decision] } : prev
+      );
+      alert(`Application has been ${decisionMap[decision]} successfully.`);
+    } catch (err: unknown) {
       console.error("Decision error:", err);
-      alert("Failed to update decision.");
+      alert("Failed to update decision. Please try again.");
     } finally {
       setDecisionLoading(false);
+    }
+  }
+
+  async function confirmReviewerFeedback() {
+    if (!id || !data) return;
+
+    const tokenString = localStorage.getItem("token");
+    const token = tokenString ? JSON.parse(tokenString)?.access : null;
+    if (!token) {
+      alert("No token found. Please log in.");
+      return;
+    }
+
+    setConfirmLoading(true);
+    try {
+      await axios.patch(
+        `https://a2sv-application-platform-backend-team12.onrender.com/manager/applications/${id}/confirm-review/`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setData((prev) => (prev ? { ...prev, reviewer_confirmed: true } : prev));
+      alert("Reviewer feedback confirmed.");
+    } catch (err) {
+      console.error("Confirm feedback error:", err);
+      alert("Failed to confirm reviewer feedback.");
+    } finally {
+      setConfirmLoading(false);
     }
   }
 
@@ -167,9 +220,11 @@ export default function ManagerDetailPage() {
   if (error) return <div className="text-red-600 font-semibold">Error: {error}</div>;
   if (!data) return null;
 
+  const hasDecided = data.status === "accepted" || data.status === "rejected";
+  const canDecide = data.reviewer_feedback && !hasDecided;
+
   return (
     <div className="min-h-screen bg-[#F8F9FB] flex flex-col">
-      {/* Header */}
       <div className="flex justify-between items-center bg-white px-6 py-4 shadow">
         <Link href="/manager" className="text-sm text-gray-500 hover:underline">
           ← Back to Dashboard
@@ -181,13 +236,15 @@ export default function ManagerDetailPage() {
       </div>
 
       <main className="flex-1 px-6 py-10 flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto w-full">
-        {/* Left */}
         <div className="flex flex-col w-full lg:w-2/3 gap-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Manage: {data.applicant_name}</h2>
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Manage: {data.applicant_name}
+          </h2>
 
-          {/* Applicant Profile */}
           <div className="bg-white p-6 rounded-lg shadow space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Applicant Profile</h3>
+            <h3 className="text-lg font-semibold text-gray-800">
+              Applicant Profile
+            </h3>
             <div className="text-sm text-gray-700 space-y-3">
               <div className="flex space-x-20 mb-6">
                 <div>
@@ -200,23 +257,42 @@ export default function ManagerDetailPage() {
                 </div>
               </div>
 
-              {/* Coding Profiles */}
               <div className="mb-6">
                 <p className="text-gray-500 font-semibold">Coding Profiles:</p>
                 <div className="space-x-4">
                   {data.coding_profiles.github && (
-                    <a href={data.coding_profiles.github} target="_blank" rel="noreferrer" className="text-blue-600">GitHub</a>
+                    <a
+                      href={data.coding_profiles.github}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600"
+                    >
+                      GitHub
+                    </a>
                   )}
                   {data.coding_profiles.leetcode && (
-                    <a href={data.coding_profiles.leetcode} target="_blank" rel="noreferrer" className="text-blue-600">LeetCode</a>
+                    <a
+                      href={data.coding_profiles.leetcode}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600"
+                    >
+                      LeetCode
+                    </a>
                   )}
                   {data.coding_profiles.codeforces && (
-                    <a href={data.coding_profiles.codeforces} target="_blank" rel="noreferrer" className="text-blue-600">Codeforces</a>
+                    <a
+                      href={data.coding_profiles.codeforces}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600"
+                    >
+                      Codeforces
+                    </a>
                   )}
                 </div>
               </div>
 
-              {/* Essays */}
               <div>
                 <p className="text-gray-500 font-semibold">Essay 1:</p>
                 <p className="font-semibold">{data.essays.essay1}</p>
@@ -226,18 +302,35 @@ export default function ManagerDetailPage() {
                 <p className="font-semibold">{data.essays.essay2}</p>
               </div>
 
-              {/* Resume */}
               <div className="mb-6">
                 <p className="text-gray-500 font-semibold">Resume:</p>
-                <a href={data.resume_url} target="_blank" rel="noreferrer" className="text-blue-600">View Resume.pdf</a>
+                <a
+                  href={data.resume_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600"
+                >
+                  View Resume.pdf
+                </a>
               </div>
             </div>
           </div>
 
-          {/* Reviewer Feedback */}
-          {data.reviewer_feedback && (
+          {!data.reviewer_feedback ? (
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+              <p className="text-yellow-700 font-semibold">
+                No reviewer feedback has been submitted yet.
+              </p>
+            </div>
+          ) : (
             <div className="bg-white p-6 rounded-lg shadow space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">Reviewer’s Feedback ({data.reviewer_feedback.reviewer_name})</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Reviewer’s Feedback ({data.reviewer_feedback.reviewer_name})
+                </h3>
+                
+              </div>
+
               <div className="text-sm text-gray-700 space-y-3">
                 <div className="mb-6">
                   <p className="text-gray-500 font-semibold">Activity Check:</p>
@@ -270,44 +363,62 @@ export default function ManagerDetailPage() {
           )}
         </div>
 
-        {/* Right */}
-        <div className="w-full lg:w-1/3 pt-14">
-          <div className="bg-white p-7 rounded-lg shadow flex flex-col space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Manager Actions</h3>
-              <label className="text-sm text-gray-600 block mb-1">Assigned Reviewer</label>
-              <input
-                type="text"
-                value={data.assigned_reviewer || ""}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
+      <div className="bg-white p-7 rounded-lg shadow flex flex-col space-y-6">
+  <div>
+    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+      Manager Actions
+    </h3>
+    <label className="text-sm text-gray-600 block mb-1">
+      Assign Reviewer
+    </label>
+    <input
+      type="text"
+      value={data.assigned_reviewer || ""}
+      readOnly
+      className="w-full px-3 py-2 border border-gray-300 rounded-md mb-3"
+    />
+    {!data.reviewer_confirmed && data.assigned_reviewer && (
+      <button
+        onClick={confirmReviewerFeedback}
+        disabled={confirmLoading}
+        className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 text-sm"
+      >
+        {confirmLoading ? "Confirming..." : "Confirm"}
+      </button>
+    )}
+  </div>
 
-            <div>
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>Final Decision</strong><br/>
-                <span className="text-xs text-gray-400">(This action is final and will notify the applicant.)</span>
-              </p>
-              <div className="flex gap-4 mt-2">
-                <button
-                  onClick={() => handleDecision("reject")}
-                  disabled={decisionLoading}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-md text-sm font-medium disabled:opacity-50"
-                >
-                  Reject
-                </button>
-                <button
-                  onClick={() => handleDecision("accept")}
-                  disabled={decisionLoading}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-sm font-medium disabled:opacity-50"
-                >
-                  Accept
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div>
+    <p className="text-sm text-gray-600 mb-2">
+      <strong>Final Decision</strong>
+      <br />
+      <span className="text-xs text-gray-400">
+        (This action is final and will notify the applicant.)
+      </span>
+    </p>
+    <div className="flex gap-4 mt-2">
+      <button
+        onClick={() => handleDecision("reject")}
+        disabled={!canDecide || decisionLoading}
+        className={`flex-1 py-2 rounded-md text-sm font-medium text-white ${
+          data.status === "rejected" ? "bg-red-700" : "bg-red-600 hover:bg-red-700"
+        } disabled:opacity-50`}
+      >
+        {data.status === "rejected" ? "Rejected" : "Reject"}
+      </button>
+      <button
+        onClick={() => handleDecision("accept")}
+        disabled={!canDecide || decisionLoading}
+        className={`flex-1 py-2 rounded-md text-sm font-medium text-white ${
+          data.status === "accepted" ? "bg-green-700" : "bg-green-600 hover:bg-green-700"
+        } disabled:opacity-50`}
+      >
+        {data.status === "accepted" ? "Accepted" : "Accept"}
+      </button>
+    </div>
+  </div>
+</div>
+
       </main>
 
       <footer className="bg-[#1E293B] text-center text-white text-sm py-4">
